@@ -1,6 +1,16 @@
 /node_modules
 /public/hot
 /public/storage
+/public/document
+/public/img
+/public/messagefile
+/public/messages
+/public/organization
+/public/orgImage
+/public/paymentqrcode
+/public/product
+/public/profile
+/public/qrcode
 /storage/*.key
 /vendor
 .env
