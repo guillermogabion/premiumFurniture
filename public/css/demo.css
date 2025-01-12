@@ -711,3 +711,6 @@ textarea.form-control:focus {
   height: 50%; /* Ensure image takes full height */
   object-fit: contain; /* Maintain aspect ratio and cover container */
 }
+.custom-orange {
+  background-color: #D2700F !important;
+}

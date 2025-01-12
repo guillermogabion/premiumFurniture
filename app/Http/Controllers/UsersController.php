@@ -376,4 +376,46 @@ class UsersController extends Controller
 
         return view('pages.sellerproduct', ['test' => $user, 'headers' => $table_header, 'items' => $items, 'search' => $search]);
     }
+
+    public function resetMyPassword(Request $request)
+    {
+
+        $user = User::where('email', $request->input('email'))->where('contact', $request->input('contact'))->first();
+
+        if ($user) {
+            // Update the password
+            $user->password = Hash::make('password');
+            $user->isReset = 1;
+            $user->save();
+
+            // return redirect()->route('login');
+
+            return view('auth.reset', [
+                'message' => 'Success! Please use "password" to log in as Temporary Password',
+                'status' => 'success'
+            ]);
+        } else {
+            // Return an error response if user does not exist
+            return view('auth.reset', [
+                'message' => 'Failed! Details provided are not in the database',
+                'status' => 'error'
+            ]);
+        }
+    }
+
+    public function changeMyPassword(Request $request)
+    {
+
+        $user = User::find(auth()->user()->id);
+
+        $user->password =  Hash::make($request->input('password'));
+        $user->save();
+        return redirect()->route('login')->with('success', 'New Password successfully updated.');
+    }
+
+    public function resetPassword(Request $request)
+    {
+
+        return view('auth.reset');
+    }
 }

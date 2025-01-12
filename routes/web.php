@@ -23,6 +23,8 @@ Route::post('/register_web', [UsersController::class, 'registers'])->name('regis
 Route::get('/', function () {
     return Auth::check() ? redirect()->route('home') : redirect()->route('login');
 });
+Route::get('/reset_password', [UsersController::class, 'resetPassword'])->name('reset');
+Route::post('/reset_my_password', [UsersController::class, 'resetMyPassword'])->name('reset_my_password');
 
 
 

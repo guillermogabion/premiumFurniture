@@ -1,6 +1,46 @@
 @extends('layouts.app')
 
 @section('content')
+
+
+<div class="{{ auth()->user()->isReset !== '1' ? 'd-none' : '' }}">
+    <div id="resetModal" class="modal fade" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <!-- Modal Header -->
+                <div class="modal-header custom-orange text-white border-0 rounded-top">
+                    <h5 class="modal-title fw-bold" id="invoiceModalLabel">Reset</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-5 py-4">
+                    <div class="form-group position-relative">
+                        <input type="password" id="passwordInputReset" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Password">
+                        <span class="position-absolute"
+                            style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
+                            onclick="togglePasswordVisibility('passwordInputReset', this)">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                        @error('password')
+                        <span class="invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                        @enderror
+                    </div>
+                    <div class="form-group position-relative">
+                        <input type="password" id="passwordInputConfirmReset" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
+                        <span class="position-absolute"
+                            style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
+                            onclick="togglePasswordVisibility('passwordInputConfirmReset', this)">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                <!-- Modal Body -->
+
+            </div>
+        </div>
+    </div>
+</div>
 <div class="{{ auth()->user()->role !== 'client' ? 'd-none' : '' }}">
 
     <header class="sticky-top custom-bg text-white shadow-sm @if(auth()->user()->role !== 'client') d-none @endif">
@@ -124,6 +164,8 @@
         class="vh-100 d-flex align-items-center justify-content-center text-center text-white"
         style="background-image: url('{{ asset('img/download.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
         <div class="container">
+
+
             <h1 class="display-4 fw-bold">PREMIER FURNITURE PH</h1>
             <p class="lead">Discover our amazing products and learn more about us.</p>
             <a href="#products" class="btn btn-orange btn-lg">Explore Products</a>
@@ -1310,11 +1352,34 @@
 
 
 
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
+    function togglePasswordVisibility(inputId, icon) {
+        const input = document.getElementById(inputId);
+        const eyeIcon = icon.querySelector("i");
+        if (input.type === "password") {
+            input.type = "text";
+            eyeIcon.classList.remove("fa-eye");
+            eyeIcon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            eyeIcon.classList.remove("fa-eye-slash");
+            eyeIcon.classList.add("fa-eye");
+        }
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Only show the modal if it is not hidden
+        const resetModal = document.getElementById('resetModal');
+        if (resetModal && !resetModal.closest('.d-none')) {
+            // Show the modal using Bootstrap
+            const modal = new bootstrap.Modal(resetModal);
+            modal.show();
+        }
+    });
     document.getElementById('paymentType').addEventListener('change', function() {
         const paymentType = this.value;
         const grandTotal = calculateGrandTotal(); // Implement a function to calculate the total

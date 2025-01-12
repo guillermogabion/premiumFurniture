@@ -144,11 +144,11 @@
                             name="password"
                             required
                             autocomplete="current-password"
-                            id="passwordInput"
+                            id="passwordInputLog"
                             placeholder="Password">
                         <span class="position-absolute"
-                            style="top: 50%; right: 1rem; transform: translateY(-50%); cursor: pointer;"
-                            onclick="togglePasswordVisibility('passwordInput', this)">
+                            style="top: 50%; right: 1rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
+                            onclick="togglePasswordVisibility('passwordInputLog', this)">
                             <i class="fas fa-eye"></i>
                         </span>
                         @error('password')
@@ -164,13 +164,38 @@
                 <div class="text-center mt-3">
                     <small>
                         Don't have an account? <a href="{{ route('register') }}">Create</a><br>
-                        Forgot password? <a href="{{ route('password.request') }}">Request Password Reset</a>
+                        Forgot password? <a href="{{ route('reset') }}">Reset my Password</a>
                     </small>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<div id="resetModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-center">
+                <h5 class="modal-title">Reset Password</h5>
+            </div>
+            <div class="modal-body">
+                <form class="pt-3" method="POST" id="resetPasswordForm">
+                    @csrf
+                    <div class="form-group">
+                        <label for="editName">Email:</label>
+                        <input type="email" id="resetEmail" name="email" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="editName">Contact Number:</label>
+                        <input type="number" id="resetContact" name="contact" class="form-control">
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-4 reset-btn">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @if (session('login_error'))
 <script>
@@ -181,6 +206,7 @@
 
 <script>
     function togglePasswordVisibility(inputId, icon) {
+
         const input = document.getElementById(inputId);
         const eyeIcon = icon.querySelector("i");
         if (input.type === "password") {
@@ -193,4 +219,43 @@
             eyeIcon.classList.add("fa-eye");
         }
     }
+    $(document).ready(function() {
+        $('.modal-show').click(function() {
+            $('#resetModal').modal('show')
+        })
+        $('.reset-btn').click(function(e) {
+            e.preventDefault(); // Prevent the form from submitting normally
+
+            let email = $('#resetEmail').val();
+            let contact = $('#resetContact').val();
+
+            $.ajax({
+                url: `{{ route('reset_my_password') }}`, // Correct use of Laravel's route helper
+                type: 'POST',
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'), // CSRF token
+                    email: email,
+                    contact: contact,
+                },
+                success: function(res) {
+                    if (res.success) {
+                        window.alert(res.message);
+                    }
+                },
+                error: function(err) {
+                    if (err.status === 422) {
+                        let errors = err.responseJSON.errors;
+                        let errorMessage = Object.values(errors).flat().join('\n');
+                        window.alert('Validation Error: ' + errorMessage); // Show validation error message
+                    } else {
+                        window.alert('Error: ' + (err.responseJSON.message || 'An error occurred')); // Show generic error message
+                    }
+                },
+            });
+        });
+
+
+
+
+    })
 </script>
