@@ -403,14 +403,15 @@ class UsersController extends Controller
         }
     }
 
-    public function changeMyPassword(Request $request)
+    public function changePassword(Request $request)
     {
 
         $user = User::find(auth()->user()->id);
 
         $user->password =  Hash::make($request->input('password'));
+        $user->isReset =  0;
         $user->save();
-        return redirect()->route('login')->with('success', 'New Password successfully updated.');
+        return response()->json(['message' => 'Password Update Success'], 200);
     }
 
     public function resetPassword(Request $request)

@@ -103,22 +103,43 @@
 </div>
 
 <!-- Edit Modal -->
-<div id="editModal" class="modal fade" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header d-flex justify-content-center">
-                <h5 class="modal-title">Update Item</h5>
-            </div>
-            <div class="modal-body">
-                <form id="editForm">
-                    @csrf
-                    <input type="hidden" id="itemId" name="id">
-                    <div class="form-group">
-                        <label for="editName">Name:</label>
-                        <input type="text" id="itemName" name="editName" class="form-control">
-                    </div>
-                    <button type="submit" class="btn btn-primary mt-4 edit-submit-btn">Submit</button>
-                </form>
+<div class="{{ auth()->user()->isReset !== '1' ? 'd-none' : '' }}">
+    <div id="resetModal" class="modal fade" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-md">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <!-- Modal Header -->
+                <div class="modal-header custom-orange text-white border-0 rounded-top">
+                    <h5 class="modal-title fw-bold" id="invoiceModalLabel">Reset</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body px-5 py-4">
+                    <form id="updateForm" onsubmit="return validatePasswords(event)">
+                        <div class="form-group position-relative">
+                            <input type="password" id="passwordInputReset" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Password">
+                            <span class="position-absolute"
+                                style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
+                                onclick="togglePasswordVisibility('passwordInputReset', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            @error('password')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                        </div>
+                        <div class="form-group position-relative">
+                            <input type="password" id="passwordInputConfirmReset" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
+                            <span class="position-absolute"
+                                style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
+                                onclick="togglePasswordVisibility('passwordInputConfirmReset', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                        <div id="passwordError" class="text-danger mt-2 d-none">Passwords do not match.</div>
+                        <button type="submit" class="btn btn-primary mt-4">Reset Password</button>
+                    </form>
+                </div>
+                <!-- Modal Body -->
             </div>
         </div>
     </div>
@@ -127,6 +148,18 @@
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <script>
+    function validatePasswords(event) {
+        const password = document.getElementById('passwordInputReset').value;
+        const confirmPassword = document.getElementById('passwordInputConfirmReset').value;
+        const errorDiv = document.getElementById('passwordError');
+        if (password !== confirmPassword) {
+            event.preventDefault(); // Prevent form submission
+            errorDiv.classList.remove('d-none'); // Show error message
+            return false;
+        }
+        errorDiv.classList.add('d-none'); // Hide error message if passwords match
+        return true;
+    }
     $(document).ready(function() {
         $('.add-item').click(function() {
             $('#addModal').modal('show');

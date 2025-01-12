@@ -9,6 +9,7 @@ use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Room;
 use App\Models\Order;
+use App\Models\User;
 
 class HomeController extends Controller
 {
@@ -64,6 +65,7 @@ class HomeController extends Controller
         $inbox = Room::where('user_id', auth()->user()->id)->get();
         $cart = Cart::with(['product.user.gcash'])->where('user_id', auth()->user()->id)->get();
         $category = Category::all(); // Get categories for the dropdown
+        $total_user = User::count();
 
         $orders = Order::with('user')
             ->where('user_id', auth()->user()->id)
@@ -73,23 +75,32 @@ class HomeController extends Controller
             $productIds = json_decode($order->product_ids, true);
 
             if (is_array($productIds) && count($productIds) > 0) {
-                $flattenedProductIds = [];
-                foreach ($productIds as $id) {
-                    if (is_array($id)) {
-                        $flattenedProductIds = array_merge($flattenedProductIds, $id);
-                    } else {
-                        $flattenedProductIds[] = $id;
-                    }
-                }
+                // Extract product IDs from the array
+                $productIdsArray = array_map(function ($item) {
+                    return $item['product_id']; // Get the 'product_id' from each item in 'product_ids'
+                }, $productIds);
 
-                $uniqueProductIds = array_unique($flattenedProductIds);
-
-                $products = Product::whereIn('id', $uniqueProductIds)->get();
+                // Get products based on extracted product_ids
+                $products = Product::whereIn('id', $productIdsArray)->get();
                 $order->products = $products;
             } else {
                 $order->products = collect();
             }
         });
+        $total_vendor = User::where('role', 'vendor')->count();
+        $total_products = Product::where('status', 'active')->count();
+        $total_order = Order::count();
+
+        $my_total_products = Product::where('status', 'active')->where('user_id', auth()->user()->id)->count();
+
+
+        $toPayCount = Order::where('status', 'to_pay')->count();
+        $preparingCount = Order::where('status', 'preparing')->count();
+        $toShipCount = Order::where('status', 'to_ship')->count();
+        $shippingCount = Order::where('status', 'shipping')->count();
+        $receivedCount = Order::where('status', 'received')->count();
+        $cancelledCount = Order::where('status', 'cancelled')->count();
+
 
 
 
@@ -100,7 +111,20 @@ class HomeController extends Controller
             'cart' => $cart,
             'inbox2' => $inbox,
             'orders' => $orders,
-            'category' => $category
+            'category' => $category,
+            'total_user' => $total_user,
+            'total_vendor' => $total_vendor,
+            'total_products' => $total_products,
+            'total_order' => $total_order,
+            'my_total_products' => $total_products,
+            'my_total_order' => $total_order,
+
+            'toPayCount' => $toPayCount,
+            'preparingCount' => $preparingCount,
+            'toShipCount' => $toShipCount,
+            'shippingCount' => $shippingCount,
+            'receivedCount' => $receivedCount,
+            'cancelledCount' => $cancelledCount
         ]);
     }
 }

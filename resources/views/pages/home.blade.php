@@ -13,30 +13,34 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-5 py-4">
-                    <div class="form-group position-relative">
-                        <input type="password" id="passwordInputReset" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Password">
-                        <span class="position-absolute"
-                            style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
-                            onclick="togglePasswordVisibility('passwordInputReset', this)">
-                            <i class="fas fa-eye"></i>
-                        </span>
-                        @error('password')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
-                    </div>
-                    <div class="form-group position-relative">
-                        <input type="password" id="passwordInputConfirmReset" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
-                        <span class="position-absolute"
-                            style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
-                            onclick="togglePasswordVisibility('passwordInputConfirmReset', this)">
-                            <i class="fas fa-eye"></i>
-                        </span>
-                    </div>
+                    <form id="updateForm" onsubmit="return validatePasswords(event)">
+                        @csrf
+                        <div class="form-group position-relative">
+                            <input type="password" id="passwordInputReset" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Password">
+                            <span class="position-absolute"
+                                style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
+                                onclick="togglePasswordVisibility('passwordInputReset', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                            @error('password')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
+                        </div>
+                        <div class="form-group position-relative">
+                            <input type="password" id="passwordInputConfirmReset" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
+                            <span class="position-absolute"
+                                style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
+                                onclick="togglePasswordVisibility('passwordInputConfirmReset', this)">
+                                <i class="fas fa-eye"></i>
+                            </span>
+                        </div>
+                        <div id="passwordError" class="text-danger mt-2 d-none">Passwords do not match.</div>
+                        <button type="submit" class="btn btn-primary mt-4">Reset Password</button>
+                    </form>
                 </div>
                 <!-- Modal Body -->
-
             </div>
         </div>
     </div>
@@ -286,14 +290,11 @@
         class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
         <div>
             <h3 class="fw-bold mb-3">Dashboard</h3>
-            <h6 class="op-7 mb-2">Free Bootstrap 5 Admin Dashboard</h6>
         </div>
-        <div class="ms-md-auto py-2 py-md-0">
-            <a href="#" class="btn btn-label-info btn-round me-2">Manage</a>
-            <a href="#" class="btn btn-primary btn-round">Add Customer</a>
-        </div>
+
     </div>
     <div class="row">
+        @if ($profile->role == 'admin')
         <div class="col-sm-6 col-md-3">
             <div class="card card-stats card-round">
                 <div class="card-body">
@@ -306,8 +307,8 @@
                         </div>
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
-                                <p class="card-category">Visitors</p>
-                                <h4 class="card-title">1,294</h4>
+                                <p class="card-category">Total Users</p>
+                                <h4 class="card-title">{{$total_user}}</h4>
                             </div>
                         </div>
                     </div>
@@ -326,14 +327,16 @@
                         </div>
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
-                                <p class="card-category">Subscribers</p>
-                                <h4 class="card-title">1303</h4>
+                                <p class="card-category">Number of Vendors</p>
+                                <h4 class="card-title">{{$total_vendor}}</h4>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        @else
+        @endif
         <div class="col-sm-6 col-md-3">
             <div class="card card-stats card-round">
                 <div class="card-body">
@@ -346,8 +349,8 @@
                         </div>
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
-                                <p class="card-category">Sales</p>
-                                <h4 class="card-title">$ 1,345</h4>
+                                <p class="card-category">Number of Products</p>
+                                <h4 class="card-title">{{$profile->role == 'admin' ? $total_products : $my_total_products}}</h4>
                             </div>
                         </div>
                     </div>
@@ -366,8 +369,8 @@
                         </div>
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
-                                <p class="card-category">Order</p>
-                                <h4 class="card-title">576</h4>
+                                <p class="card-category">Total Orders</p>
+                                <h4 class="card-title">{{$profile->role == 'admin' ? $total_order : $my_total_order}}</h4>
                             </div>
                         </div>
                     </div>
@@ -380,480 +383,29 @@
             <div class="card card-round">
                 <div class="card-header">
                     <div class="card-head-row">
-                        <div class="card-title">User Statistics</div>
-                        <div class="card-tools">
-                            <a
-                                href="#"
-                                class="btn btn-label-success btn-round btn-sm me-2">
-                                <span class="btn-label">
-                                    <i class="fa fa-pencil"></i>
-                                </span>
-                                Export
-                            </a>
-                            <a href="#" class="btn btn-label-info btn-round btn-sm">
-                                <span class="btn-label">
-                                    <i class="fa fa-print"></i>
-                                </span>
-                                Print
-                            </a>
-                        </div>
+                        <div class="card-title">Order Statistics</div>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="chart-container" style="min-height: 375px">
-                        <canvas id="statisticsChart"></canvas>
+                        <canvas id="statChart"></canvas>
                     </div>
                     <div id="myChartLegend"></div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card card-primary card-round">
-                <div class="card-header">
-                    <div class="card-head-row">
-                        <div class="card-title">Daily Sales</div>
-                        <div class="card-tools">
-                            <div class="dropdown">
-                                <button
-                                    class="btn btn-sm btn-label-light dropdown-toggle"
-                                    type="button"
-                                    id="dropdownMenuButton"
-                                    data-bs-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
-                                    Export
-                                </button>
-                                <div
-                                    class="dropdown-menu"
-                                    aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-category">March 25 - April 02</div>
-                </div>
-                <div class="card-body pb-0">
-                    <div class="mb-4 mt-2">
-                        <h1>$4,578.58</h1>
-                    </div>
-                    <div class="pull-in">
-                        <canvas id="dailySalesChart"></canvas>
-                    </div>
-                </div>
-            </div>
-            <div class="card card-round">
-                <div class="card-body pb-0">
-                    <div class="h1 fw-bold float-end text-primary">+5%</div>
-                    <h2 class="mb-2">17</h2>
-                    <p class="text-muted">Users online</p>
-                    <div class="pull-in sparkline-fix">
-                        <div id="lineChart"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
     </div>
-    <div class="row">
+    <div class="row ">
         <div class="col-md-12">
             <div class="card card-round">
-                <div class="card-header">
-                    <div class="card-head-row card-tools-still-right">
-                        <h4 class="card-title">Users Geolocation</h4>
-                        <div class="card-tools">
-                            <button
-                                class="btn btn-icon btn-link btn-primary btn-xs">
-                                <span class="fa fa-angle-down"></span>
-                            </button>
-                            <button
-                                class="btn btn-icon btn-link btn-primary btn-xs btn-refresh-card">
-                                <span class="fa fa-sync-alt"></span>
-                            </button>
-                            <button
-                                class="btn btn-icon btn-link btn-primary btn-xs">
-                                <span class="fa fa-times"></span>
-                            </button>
-                        </div>
-                    </div>
-                    <p class="card-category">
-                        Map of the distribution of users around the world
-                    </p>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="table-responsive table-hover table-sales">
-                                <table class="table">
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="flag">
-                                                    <img
-                                                        src="{{asset('img/flags/id.png')}}"
-                                                        alt="indonesia" />
-                                                </div>
-                                            </td>
-                                            <td>Indonesia</td>
-                                            <td class="text-end">2.320</td>
-                                            <td class="text-end">42.18%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="flag">
-                                                    <img
-                                                        src="{{asset('img/flags/us.png')}}"
-                                                        alt="united states" />
-                                                </div>
-                                            </td>
-                                            <td>USA</td>
-                                            <td class="text-end">240</td>
-                                            <td class="text-end">4.36%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="flag">
-                                                    <img
-                                                        src="{{asset('img/flags/au.png')}}"
-                                                        alt="australia" />
-                                                </div>
-                                            </td>
-                                            <td>Australia</td>
-                                            <td class="text-end">119</td>
-                                            <td class="text-end">2.16%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="flag">
-                                                    <img
-                                                        src="{{asset('img/flags/ru.png')}}"
-                                                        alt="russia" />
-                                                </div>
-                                            </td>
-                                            <td>Russia</td>
-                                            <td class="text-end">1.081</td>
-                                            <td class="text-end">19.65%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="flag">
-                                                    <img
-                                                        src="{{asset('img/flags/cn.png')}}"
-                                                        alt="china" />
-                                                </div>
-                                            </td>
-                                            <td>China</td>
-                                            <td class="text-end">1.100</td>
-                                            <td class="text-end">20%</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <div class="flag">
-                                                    <img
-                                                        src="{{asset('img/flags/br.png')}}"
-                                                        alt="brazil" />
-                                                </div>
-                                            </td>
-                                            <td>Brasil</td>
-                                            <td class="text-end">640</td>
-                                            <td class="text-end">11.63%</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mapcontainer">
-                                <div
-                                    id="world-map"
-                                    class="w-100"
-                                    style="height: 300px"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
+
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card card-round">
-                <div class="card-body">
-                    <div class="card-head-row card-tools-still-right">
-                        <div class="card-title">New Customers</div>
-                        <div class="card-tools">
-                            <div class="dropdown">
-                                <button
-                                    class="btn btn-icon btn-clean me-0"
-                                    type="button"
-                                    id="dropdownMenuButton"
-                                    data-bs-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div
-                                    class="dropdown-menu"
-                                    aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-list py-4">
-                        <div class="item-list">
-                            <div class="avatar">
-                                <img
-                                    src="{{asset('img/jm_denis.jpg')}}"
-                                    alt="..."
-                                    class="avatar-img rounded-circle" />
-                            </div>
-                            <div class="info-user ms-3">
-                                <div class="username">Jimmy Denis</div>
-                                <div class="status">Graphic Designer</div>
-                            </div>
-                            <button class="btn btn-icon btn-link op-8 me-1">
-                                <i class="far fa-envelope"></i>
-                            </button>
-                            <button class="btn btn-icon btn-link btn-danger op-8">
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        </div>
-                        <div class="item-list">
-                            <div class="avatar">
-                                <span
-                                    class="avatar-title rounded-circle border border-white">CF</span>
-                            </div>
-                            <div class="info-user ms-3">
-                                <div class="username">Chandra Felix</div>
-                                <div class="status">Sales Promotion</div>
-                            </div>
-                            <button class="btn btn-icon btn-link op-8 me-1">
-                                <i class="far fa-envelope"></i>
-                            </button>
-                            <button class="btn btn-icon btn-link btn-danger op-8">
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        </div>
-                        <div class="item-list">
-                            <div class="avatar">
-                                <img
-                                    src="{{asset('img/talha.jpg')}}"
-                                    alt="..."
-                                    class="avatar-img rounded-circle" />
-                            </div>
-                            <div class="info-user ms-3">
-                                <div class="username">Talha</div>
-                                <div class="status">Front End Designer</div>
-                            </div>
-                            <button class="btn btn-icon btn-link op-8 me-1">
-                                <i class="far fa-envelope"></i>
-                            </button>
-                            <button class="btn btn-icon btn-link btn-danger op-8">
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        </div>
-                        <div class="item-list">
-                            <div class="avatar">
-                                <img
-                                    src="{{asset('img/chadengle.jpg')}}"
-                                    alt="..."
-                                    class="avatar-img rounded-circle" />
-                            </div>
-                            <div class="info-user ms-3">
-                                <div class="username">Chad</div>
-                                <div class="status">CEO Zeleaf</div>
-                            </div>
-                            <button class="btn btn-icon btn-link op-8 me-1">
-                                <i class="far fa-envelope"></i>
-                            </button>
-                            <button class="btn btn-icon btn-link btn-danger op-8">
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        </div>
-                        <div class="item-list">
-                            <div class="avatar">
-                                <span
-                                    class="avatar-title rounded-circle border border-white bg-primary">H</span>
-                            </div>
-                            <div class="info-user ms-3">
-                                <div class="username">Hizrian</div>
-                                <div class="status">Web Designer</div>
-                            </div>
-                            <button class="btn btn-icon btn-link op-8 me-1">
-                                <i class="far fa-envelope"></i>
-                            </button>
-                            <button class="btn btn-icon btn-link btn-danger op-8">
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        </div>
-                        <div class="item-list">
-                            <div class="avatar">
-                                <span
-                                    class="avatar-title rounded-circle border border-white bg-secondary">F</span>
-                            </div>
-                            <div class="info-user ms-3">
-                                <div class="username">Farrah</div>
-                                <div class="status">Marketing</div>
-                            </div>
-                            <button class="btn btn-icon btn-link op-8 me-1">
-                                <i class="far fa-envelope"></i>
-                            </button>
-                            <button class="btn btn-icon btn-link btn-danger op-8">
-                                <i class="fas fa-ban"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-8">
-            <div class="card card-round">
-                <div class="card-header">
-                    <div class="card-head-row card-tools-still-right">
-                        <div class="card-title">Transaction History</div>
-                        <div class="card-tools">
-                            <div class="dropdown">
-                                <button
-                                    class="btn btn-icon btn-clean me-0"
-                                    type="button"
-                                    id="dropdownMenuButton"
-                                    data-bs-toggle="dropdown"
-                                    aria-haspopup="true"
-                                    aria-expanded="false">
-                                    <i class="fas fa-ellipsis-h"></i>
-                                </button>
-                                <div
-                                    class="dropdown-menu"
-                                    aria-labelledby="dropdownMenuButton">
-                                    <a class="dropdown-item" href="#">Action</a>
-                                    <a class="dropdown-item" href="#">Another action</a>
-                                    <a class="dropdown-item" href="#">Something else here</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <!-- Projects table -->
-                        <table class="table align-items-center mb-0">
-                            <thead class="thead-light">
-                                <tr>
-                                    <th scope="col">Payment Number</th>
-                                    <th scope="col" class="text-end">Date & Time</th>
-                                    <th scope="col" class="text-end">Amount</th>
-                                    <th scope="col" class="text-end">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <th scope="row">
-                                        <button
-                                            class="btn btn-icon btn-round btn-success btn-sm me-2">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                        Payment from #10231
-                                    </th>
-                                    <td class="text-end">Mar 19, 2020, 2.45pm</td>
-                                    <td class="text-end">$250.00</td>
-                                    <td class="text-end">
-                                        <span class="badge badge-success">Completed</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <button
-                                            class="btn btn-icon btn-round btn-success btn-sm me-2">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                        Payment from #10231
-                                    </th>
-                                    <td class="text-end">Mar 19, 2020, 2.45pm</td>
-                                    <td class="text-end">$250.00</td>
-                                    <td class="text-end">
-                                        <span class="badge badge-success">Completed</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <button
-                                            class="btn btn-icon btn-round btn-success btn-sm me-2">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                        Payment from #10231
-                                    </th>
-                                    <td class="text-end">Mar 19, 2020, 2.45pm</td>
-                                    <td class="text-end">$250.00</td>
-                                    <td class="text-end">
-                                        <span class="badge badge-success">Completed</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <button
-                                            class="btn btn-icon btn-round btn-success btn-sm me-2">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                        Payment from #10231
-                                    </th>
-                                    <td class="text-end">Mar 19, 2020, 2.45pm</td>
-                                    <td class="text-end">$250.00</td>
-                                    <td class="text-end">
-                                        <span class="badge badge-success">Completed</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <button
-                                            class="btn btn-icon btn-round btn-success btn-sm me-2">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                        Payment from #10231
-                                    </th>
-                                    <td class="text-end">Mar 19, 2020, 2.45pm</td>
-                                    <td class="text-end">$250.00</td>
-                                    <td class="text-end">
-                                        <span class="badge badge-success">Completed</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <button
-                                            class="btn btn-icon btn-round btn-success btn-sm me-2">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                        Payment from #10231
-                                    </th>
-                                    <td class="text-end">Mar 19, 2020, 2.45pm</td>
-                                    <td class="text-end">$250.00</td>
-                                    <td class="text-end">
-                                        <span class="badge badge-success">Completed</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th scope="row">
-                                        <button
-                                            class="btn btn-icon btn-round btn-success btn-sm me-2">
-                                            <i class="fa fa-check"></i>
-                                        </button>
-                                        Payment from #10231
-                                    </th>
-                                    <td class="text-end">Mar 19, 2020, 2.45pm</td>
-                                    <td class="text-end">$250.00</td>
-                                    <td class="text-end">
-                                        <span class="badge badge-success">Completed</span>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="row d-none">
+
     </div>
 </div>
 
@@ -1024,8 +576,12 @@
                     <div class="col-md-4 col-lg-3">
                         <div class="card shadow-sm border-0 h-100 rounded-3">
                             <div class="position-relative overflow-hidden">
+                                @php
+                                $images = json_decode($item->product->images);
+                                $firstImage = $images[0] ?? null; // Get the first image or null if the array is empty
+                                @endphp
                                 <img
-                                    src="{{ asset('product/' . ($item->product->image ?: 'img/kaiadmin/logos.png')) }}"
+                                    src="{{ asset('product/' . ($firstImage ?? 'img/kaiadmin/logos.png')) }}"
                                     class="card-img-top img-fluid"
                                     alt="{{ $item->product->name }}"
                                     loading="lazy"
@@ -1223,13 +779,30 @@
 
                                         <p class="card-text text-success fw-bold mb-1">Total: ₱ {{ number_format($item->total, 2) }}</p>
                                         <p class="card-text text-secondary mb-1">Downpayment: ₱ {{ number_format($item->downpayment_amount, 2) }}</p>
-
                                         <h6 class="mt-3">Products:</h6>
                                         @foreach ($item->products as $product)
+                                        @php
+                                        // Decode the product_ids to get the quantity for each product
+                                        $productIds = json_decode($item->product_ids, true);
+
+                                        // Find the quantity for the current product
+                                        $productQuantity = 0;
+                                        foreach ($productIds as $productId) {
+                                        if ($productId['product_id'] == $product->id) {
+                                        $productQuantity = $productId['quantity'];
+                                        break;
+                                        }
+                                        }
+
+                                        // Get the first image of the product
+                                        $images = json_decode($product->images);
+                                        $firstOrderImage = $images[0] ?? null;
+                                        @endphp
+
                                         <div class="d-flex justify-content-between mb-2">
-                                            <img src="{{ asset('product/' . $product->image) }}" alt="{{ $product->name }}" style="height: 50px; object-fit: cover;">
+                                            <img src="{{ asset('product/' . $firstOrderImage) }}" alt="{{ $firstOrderImage }}" style="height: 50px; object-fit: cover;">
                                             <p class="text-dark">{{ $product->name }} (₱ {{ number_format($product->price, 2) }})</p>
-                                            <span class="text-secondary">x{{ $item->quantity }}</span>
+                                            <span class="text-secondary">x{{ $productQuantity }}</span>
                                         </div>
                                         @endforeach
 
@@ -1352,24 +925,118 @@
 
 
 
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
-    function togglePasswordVisibility(inputId, icon) {
-        const input = document.getElementById(inputId);
-        const eyeIcon = icon.querySelector("i");
-        if (input.type === "password") {
-            input.type = "text";
-            eyeIcon.classList.remove("fa-eye");
-            eyeIcon.classList.add("fa-eye-slash");
-        } else {
-            input.type = "password";
-            eyeIcon.classList.remove("fa-eye-slash");
-            eyeIcon.classList.add("fa-eye");
+    var ctx = document.getElementById('statChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        type: 'line', // Line chart
+        data: {
+            labels: ['To Pay', 'Preparing', 'To Ship', 'Shipping', 'Received', 'Cancelled'],
+            datasets: [{
+                label: 'Order Status Count',
+                data: [
+                    @json($toPayCount),
+                    @json($preparingCount),
+                    @json($toShipCount),
+                    @json($shippingCount),
+                    @json($receivedCount),
+                    @json($cancelledCount)
+                ],
+                fill: false,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
         }
+    });
+</script>
+
+<script>
+    function togglePasswordVisibility(inputId, toggleIcon) {
+        const input = document.getElementById(inputId);
+        const icon = toggleIcon.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    }
+
+    function validatePasswords(event) {
+        const password = document.getElementById('passwordInputReset').value;
+        const confirmPassword = document.getElementById('passwordInputConfirmReset').value;
+        const errorDiv = document.getElementById('passwordError');
+        if (password !== confirmPassword) {
+            event.preventDefault(); // Prevent form submission
+            errorDiv.classList.remove('d-none'); // Show error message
+            return false;
+        }
+        errorDiv.classList.add('d-none'); // Hide error message if passwords match
+        const form = document.getElementById('updateForm');
+        const formData = new FormData(form);
+
+        // Use fetch to send a POST request
+        fetch('/changePassword', { // Replace with your endpoint
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                },
+                redirect: 'manual'
+            })
+            .then(response => {
+                // If response status is 302, we treat it as success
+
+                // Otherwise, we process JSON response
+                return response.json();
+            })
+            .then(data => {
+                // Success response
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Password Reset Successful',
+                    text: 'Your password has been successfully reset!',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#3AA0F3'
+                }).then(() => window.location.reload());
+
+                // Handle the response data here, like redirecting if needed
+                console.log('Success:', data);
+            })
+            .catch((error) => {
+                // Error response
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops...',
+                    text: 'Something went wrong. Please try again later.',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#D22701'
+                });
+
+                console.error('Error:', error);
+            });
+
+        event.preventDefault();
     }
     document.addEventListener('DOMContentLoaded', function() {
         // Only show the modal if it is not hidden

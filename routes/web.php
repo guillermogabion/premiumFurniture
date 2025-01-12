@@ -114,4 +114,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/messages/{inboxId}/inbox', [RoomMessagesController::class, 'index'])->name('messages');
     Route::post('/send-message', [RoomMessagesController::class, 'sendMessage'])->name('sendMessage');
     Route::get('/fetch-messages/{room_id}', [RoomMessagesController::class, 'fetchMessages'])->name('fetchMessages');
+
+
+    Route::post('/changePassword', [UsersController::class, 'changePassword'])->name('changePassword');
 });

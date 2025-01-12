@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\Cart;
+use App\Models\Product;
 
 
 use Illuminate\Http\Request;
@@ -28,12 +29,29 @@ class OrderController extends Controller
         $items = Order::when($search, function ($query, $search) {
             return $query->where('orderId', 'like', '%' . $search . '%');
         })
-            ->whereHas('product', function ($query) {
-                $query->where('user_id', auth()->user()->id);
-            })
-            ->with('product.user')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
+
+        $items->each(function ($order) {
+            $productIds = json_decode($order->product_ids, true);
+
+            if (is_array($productIds) && count($productIds) > 0) {
+                // Extract product IDs from the array
+                $productIdsArray = array_map(function ($item) {
+                    return $item['product_id']; // Get the 'product_id' from each item in 'product_ids'
+                }, $productIds);
+
+                // Get products based on extracted product_ids and filter by authenticated user
+                $products = Product::whereIn('id', $productIdsArray)
+                    ->where('user_id', auth()->user()->id) // Filter products by authenticated user's ID
+                    ->get();
+
+                $order->products = $products;
+            } else {
+                $order->products = collect(); // Set empty collection if no products
+            }
+        });
+
 
 
         return view('pages.orders', ['headers' => $table_header, 'items' => $items, 'search' => $search]);

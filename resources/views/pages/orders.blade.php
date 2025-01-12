@@ -41,32 +41,45 @@
                                             @forelse ($items as $item)
                                             <tr>
                                                 <td>{{ $item->orderId }}</td>
-                                                <td>{{ $item->product->name }}</td>
-                                                <td>{{ $item->product->user->fullname ?? '' }}</td>
-                                                <td>{{ $item->product->user->address ?? '' }}</td>
-                                                <td>{{ $item->product->user->contact ?? '' }}</td>
-                                                <td>{{ $item->quantity }}</td>
+                                                <td>{{$item->products->pluck('name')->implode(', ') }}
+                                                </td>
+                                                <td>{{ $item->user->fullname }}</td>
+                                                <td>{{ $item->user->address ?? '' }}</td>
+                                                <td>{{ $item->user->contact ?? '' }}</td>
+                                                <td>@php
+                                                    $productIds = json_decode($item->product_ids, true); // Decode the product_ids JSON
+                                                    @endphp
+
+                                                    @foreach ($productIds as $productData)
+                                                    @php
+                                                    $product = \App\Models\Product::find($productData['product_id']); // Find the product by product_id
+                                                    @endphp
+                                                    @if($product)
+                                                    <p>{{ $product->name }} (Quantity: {{ $productData['quantity'] }})</p>
+                                                    @endif
+                                                    @endforeach
+                                                </td>
                                                 <td>{{ \Carbon\Carbon::parse($item->date)->format('F j, Y') }}</td>
                                                 <td>
                                                     <div class="dropdown">
                                                         <button class="badge 
-                @if ($item->status == 'to_pay') badge-warning
-                @elseif ($item->status == 'preparing') badge-primary
-                @elseif ($item->status == 'to_ship') badge-info
-                @elseif ($item->status == 'shipping') badge-secondary
-                @elseif ($item->status == 'received') badge-success
-                @else badge-danger
-                @endif
-                "
+                                                                @if ($item->status == 'to_pay') badge-warning
+                                                                @elseif ($item->status == 'preparing') badge-primary
+                                                                @elseif ($item->status == 'to_ship') badge-info
+                                                                @elseif ($item->status == 'shipping') badge-secondary
+                                                                @elseif ($item->status == 'received') badge-success
+                                                                @else badge-danger
+                                                                @endif
+                                                                "
                                                             type="button" id="dropdownMenuButton{{ $item->id }}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                             @if ($item->status == 'to_pay')
                                                             To Pay
                                                             @elseif ($item->status == 'preparing')
-                                                            Preparing
+                                                            On Labor
                                                             @elseif ($item->status == 'to_ship')
                                                             To Ship
                                                             @elseif ($item->status == 'shipping')
-                                                            Shipping
+                                                            On The Way
                                                             @elseif ($item->status == 'received')
                                                             Received
                                                             @elseif ($item->status == 'cancelled')
@@ -80,9 +93,9 @@
                                                                 @csrf
                                                                 <input type="hidden" name="status" id="statusInput{{ $item->id }}" value="">
                                                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('to_pay', {{ $item->id }});">To Pay</a>
-                                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('preparing', {{ $item->id }});">Preparing</a>
+                                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('preparing', {{ $item->id }});">On Labor</a>
                                                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('to_ship', {{ $item->id }});">To Ship</a>
-                                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('shipping', {{ $item->id }});">Shipping</a>
+                                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('shipping', {{ $item->id }});">On The Way</a>
                                                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('received', {{ $item->id }});">Received</a>
                                                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('cancelled', {{ $item->id }});">Cancelled</a>
                                                             </form>
