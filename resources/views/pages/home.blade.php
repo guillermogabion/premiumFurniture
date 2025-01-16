@@ -91,11 +91,17 @@
                                 <div class="dropdown-user-scroll scrollbar-outer">
                                     @if(isset($inbox2) && count($inbox2) > 0)
                                     @foreach($inbox2 as $message)
-                                    <div class="card mb-2 mx-2" onclick="window.location='{{ route('messages', ['inboxId' => $message->id]) }}'" style="cursor: pointer;">
-                                        <div class="card-body">
+
+
+                                    <div class="card mb-2 mx-2 isread-btn" data-id="{{ $message->id }}" onclick="window.location='{{ route('messages', ['inboxId' => $message->id]) }}'" style="cursor: pointer;">
+                                        <div class="card-body ">
+                                            <input type="hidden" value="{{$message->id}}" id="messageId">
                                             <h6 class="text-sm">{{ $message->user->fullname }}</h6>
                                             <small class="text-muted">{{ $message->created_at->format('M d, Y h:i A') }}</small>
                                         </div>
+                                        @if((int)$message->messages->last()->isRead !== 0 && (int)$message->messages->last()->isRead !== auth()->user()->id)
+                                        <span class="dot"></span> <!-- Red dot indicator -->
+                                        @endif
                                     </div>
                                     <hr>
                                     @endforeach
@@ -140,6 +146,14 @@
                                         </div>
                                     </li>
                                     <li>
+                                        <a
+                                            class="dropdown-item"
+                                            href="javascript:void(0);"
+                                            data-bs-toggle="offcanvas"
+                                            data-bs-target="#accountsDrawer"
+                                            aria-controls="accountsDrawer">
+                                            Account Setting
+                                        </a>
                                         <div class="dropdown-divider"></div>
                                         <a class="dropdown-item" href="{{route('logout')}}" onclick="event.preventDefault();
                                 document.getElementById('logout-form').submit();">
@@ -761,18 +775,28 @@
 
                                         <p class="card-text text-muted small mb-1">Date: {{ $item->date }}</p>
                                         <span class="badge status-badge 
-                                            @if ($item->status == 'to_pay') 
-                                                bg-warning
-                                            @elseif ($item->status == 'received') 
-                                                bg-success
-                                            @elseif ($item->status == 'paid') 
-                                                bg-primary
-                                            @elseif ($item->status == 'canceled') 
-                                                bg-danger
-                                            @else 
-                                                bg-secondary 
+                                             @if ($item->status == 'to_pay') badge-warning
+                                            @elseif ($item->status == 'preparing') badge-primary
+                                            @elseif ($item->status == 'to_ship') badge-info
+                                            @elseif ($item->status == 'shipping') badge-secondary
+                                            @elseif ($item->status == 'received') badge-success
+                                            @else badge-danger
                                             @endif">
-                                            {{ ucwords(str_replace('_', ' ', $item->status)) }}
+                                            @if ($item->status == 'to_pay')
+                                            To Pay
+                                            @elseif ($item->status == 'preparing')
+                                            On Labor
+                                            @elseif ($item->status == 'to_ship')
+                                            To Ship
+                                            @elseif ($item->status == 'shipping')
+                                            On The Way
+                                            @elseif ($item->status == 'received')
+                                            Received
+                                            @elseif ($item->status == 'cancelled')
+                                            Cancelled
+                                            @else
+                                            Pending
+                                            @endif
                                         </span>
 
                                         <p class="card-text text-muted small mb-1">Payment Mode: {{ ucwords($item->payment_mode) }}</p>
@@ -918,7 +942,63 @@
     </div>
 </div>
 
+<div class="offcanvas offcanvas-end" tabindex="-1" id="accountsDrawer" aria-labelledby="accountsDrawerLabel">
+    <div class="offcanvas-header">
+        <h5 id="accountsDrawerLabel">Update your Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="updateDetailForm" enctype="multipart/form-data">
+            @csrf
+            <!-- Profile Image -->
+            <div class="mb-3">
+                <label for="profileImage" class="form-label">Profile Image</label>
+                <input type="file" name="profile_image" id="profileCustomImage" class="form-control" accept="image/*" onchange="previewProfileImage(event)">
+            </div>
+            <div class="mb-3 text-center">
+                <img id="profileImagesPreview" src="{{ $profile->profile ? asset('profile/' . $profile->profile) : 'https://dummyimage.com/300x300/cccccc/ffffff&text=Profile+Image' }}" alt="Profile Image" style="width: 100px; height: 100px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
+            </div>
 
+            <!-- Full Name -->
+            <div class="mb-3">
+                <label for="fullname" class="form-label">Full Name</label>
+                <input type="text" name="fullname" id="fullnameCustom" class="form-control" value="{{ $profile->fullname }}" required>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" name="email" id="emailCustom" class="form-control" value="{{ $profile->email }}" required>
+            </div>
+
+            <!-- Gender -->
+            <div class="mb-3">
+                <label for="gender" class="form-label">Gender</label>
+                <select name="gender" id="genderCustom" class="form-control" required>
+                    <option value="male" {{ $profile->gender === 'male' ? 'selected' : '' }}>Male</option>
+                    <option value="female" {{ $profile->gender === 'female' ? 'selected' : '' }}>Female</option>
+                </select>
+            </div>
+
+            <!-- Contact -->
+            <div class="mb-3">
+                <label for="contact" class="form-label">Contact</label>
+                <input type="text" name="contact" id="contactCustom" class="form-control" value="{{ $profile->contact }}" required>
+            </div>
+
+            <!-- Address -->
+            <div class="mb-3">
+                <label for="address" class="form-label">Address</label>
+                <textarea name="address" id="addressCustom" class="form-control" rows="3" required>{{ $profile->address }}</textarea>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary edit-custom-btn">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 
 
@@ -968,6 +1048,88 @@
 </script>
 
 <script>
+    $('.edit-custom-btn').click(function(e) {
+        e.preventDefault();
+
+        // Get form values
+        let fullname = $('#fullnameCustom').val();
+        let email = $('#emailCustom').val();
+        let gender = $('#genderCustom').val();
+        let contact = $('#contactCustom').val();
+        let address = $('#addressCustom').val();
+        let profileInput = document.getElementById('profileCustomImage');
+        let profilePicture = profileInput && profileInput.files.length > 0 ? profileInput.files[0] : null;
+
+        // Create a FormData object
+        let formData = new FormData();
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+        formData.append('fullname', fullname);
+        formData.append('email', email);
+        formData.append('gender', gender);
+        formData.append('contact', contact);
+        formData.append('address', address);
+        if (profilePicture) {
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg+xml'];
+            if (!validTypes.includes(profilePicture.type)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid File Type",
+                    text: "Please select a valid image file (jpeg, png, jpg, gif, svg).",
+                    confirmButtonText: 'OK'
+                });
+                return; // Stop the submission if invalid type
+            }
+            formData.append('profilePicture', profilePicture);
+        }
+
+        console.log(formData);
+
+        $.ajax({
+            url: '/user_update',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(res) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Update Success',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function(err) {
+                if (err.status === 422) {
+                    let errors = err.responseJSON.errors;
+                    for (let key in errors) {
+                        if (errors.hasOwnProperty(key)) {
+                            console.error(key + ": " + errors[key]);
+                        }
+                    }
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: "Please check the input data.",
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: err.responseJSON.message || "An error occurred",
+                        confirmButtonText: 'OK'
+                    });
+                    console.error(err);
+                }
+            }
+        });
+    });
+
     function togglePasswordVisibility(inputId, toggleIcon) {
         const input = document.getElementById(inputId);
         const icon = toggleIcon.querySelector('i');
@@ -1498,25 +1660,18 @@
                 });
             });
 
-            $('.add-btn').click(function(e) {
+            $('.isread-btn').click(function(e) {
                 e.preventDefault();
-                let name = document.getElementById('addName').value
 
-                $.post('/type_add', {
+                let id = $(this).data('id');
+
+                $.post('/read', {
                     _token: $('meta[name="csrf-token"]').attr('content'),
-                    name: name,
+                    id: id,
+
 
                 }).done(function(res) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Saving Success',
-                        icon: 'success',
-                        confirmButtonText: 'OK'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.reload();
-                        }
-                    });
+
                 }).fail(function(err) {
                     if (err.status === 422) {
                         let errors = err.responseJSON.errors;
@@ -1544,6 +1699,22 @@
                         });
                         console.error(err);
                     }
+                })
+            })
+
+
+            $('.add-btn').click(function(e) {
+                e.preventDefault();
+                let name = document.getElementById('addName').value
+
+                $.post('/type_add', {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    name: name,
+
+                }).done(function(res) {
+
+                }).fail(function(err) {
+
                 })
             })
 
@@ -1698,6 +1869,21 @@
         document.getElementById("proceedCheckoutButton").style.display = "none";
         document.getElementById("checkoutFormContainer").style.display = "none";
     });
+
+    function previewProfileImage(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('profileImagesPreview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result; // Update the preview image source
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "https://via.placeholder.com/100/CCCCCC/FFFFFF"; // Reset preview if no file selected
+        }
+    }
 </script>
 
 @endsection

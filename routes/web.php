@@ -16,7 +16,9 @@ use App\Http\Controllers\ShopTypeController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\RatingController;
 use App\Http\Controllers\RoomMessagesController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\SupportDocumentController;
+use App\Models\RoomMessages;
 
 Route::post('/register_web', [UsersController::class, 'registers'])->name('register_web');
 
@@ -117,4 +119,9 @@ Route::middleware('auth')->group(function () {
 
 
     Route::post('/changePassword', [UsersController::class, 'changePassword'])->name('changePassword');
+
+    Route::get('/settings', [SettingController::class, 'index'])->name('setting');
+    Route::post('/addText', [SettingController::class, 'addOns'])->name('add-text');
+
+    Route::post('/read', [RoomMessagesController::class, 'readMessage'])->name('read');
 });

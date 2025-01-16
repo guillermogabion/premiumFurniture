@@ -62,12 +62,14 @@
                         aria-expanded="false">
                         My Inbox
 
+
                     </a>
                     <ul class="dropdown-menu dropdown-user animated fadeIn">
                         <div class="dropdown-user-scroll scrollbar-outer">
+
                             @if(isset($inbox) && count($inbox) > 0)
                             @foreach($inbox as $message)
-                            <div class="card mb-2 mx-2" onclick="window.location='{{ route('messages', ['inboxId' => $message->id]) }}'" style="cursor: pointer;">
+                            <div class="card mb-2 mx-2 isread-btn" data-id="{{ $message->id }}" onclick="window.location='{{ route('messages', ['inboxId' => $message->id]) }}'" style="cursor: pointer;">
                                 <div class="card-body">
 
                                     @if($profile->role !== 'vendor')
@@ -77,6 +79,9 @@
                                     @endif
                                     <small class="text-muted">{{ $message->created_at->format('M d, Y h:i A') }}</small>
                                 </div>
+                                @if((int)$message->messages->last()->isRead !== 0 && (int)$message->messages->last()->isRead !== auth()->user()->id)
+                                <span class="dot"></span> <!-- Red dot indicator -->
+                                @endif
                             </div>
                             <hr>
                             @endforeach
@@ -148,7 +153,14 @@
                                 </div>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#">Account Setting</a>
+                                <a
+                                    class="dropdown-item"
+                                    href="javascript:void(0);"
+                                    data-bs-toggle="offcanvas"
+                                    data-bs-target="#accountDrawer"
+                                    aria-controls="accountDrawer">
+                                    Account Setting
+                                </a>
                                 <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="{{route('logout')}}" onclick="event.preventDefault();
                                 document.getElementById('logout-form').submit();">
@@ -197,7 +209,7 @@
 
                 <!-- Additional Image Preview -->
                 <div class="mb-3 text-center">
-                    <img id="additionalImagePreview" src="https://via.placeholder.com/100/CCCCCC/FFFFFF" alt="Additional Image Preview" style="width: 100px; height: 100px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
+                    <img id="additionalImagePreview" src="https://dummyimage.com/100x100/cccccc/ffffff&text=QR+Code" alt="" style="width: 100px; height: 100px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
                 </div>
 
                 <!-- Submit Button -->
@@ -207,6 +219,65 @@
             </form>
         </div>
     </div>
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="accountDrawer" aria-labelledby="accountDrawerLabel">
+        <div class="offcanvas-header">
+            <h5 id="accountDrawerLabel">Update your Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <form id="updateDetailsForm" enctype="multipart/form-data">
+                @csrf
+                <!-- Profile Image -->
+                <div class="mb-3">
+                    <label for="profileImage" class="form-label">Profile Image</label>
+                    <input type="file" name="profile_image" id="profileImage" class="form-control" accept="image/*" onchange="previewProfileImage(event)">
+                </div>
+                <div class="mb-3 text-center">
+                    <img id="profileImagePreview" src="{{ $profile->profile ? asset('profile/' . $profile->profile) : 'https://dummyimage.com/300x300/cccccc/ffffff&text=Profile+Image' }}" alt="Profile Image" style="width: 100px; height: 100px; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
+                </div>
+
+                <!-- Full Name -->
+                <div class="mb-3">
+                    <label for="fullname" class="form-label">Full Name</label>
+                    <input type="text" name="fullname" id="fullname" class="form-control" value="{{ $profile->fullname }}" required>
+                </div>
+
+                <!-- Email -->
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{ $profile->email }}" required>
+                </div>
+
+                <!-- Gender -->
+                <div class="mb-3">
+                    <label for="gender" class="form-label">Gender</label>
+                    <select name="gender" id="gender" class="form-control" required>
+                        <option value="male" {{ $profile->gender === 'male' ? 'selected' : '' }}>Male</option>
+                        <option value="female" {{ $profile->gender === 'female' ? 'selected' : '' }}>Female</option>
+                    </select>
+                </div>
+
+                <!-- Contact -->
+                <div class="mb-3">
+                    <label for="contact" class="form-label">Contact</label>
+                    <input type="text" name="contact" id="contact" class="form-control" value="{{ $profile->contact }}" required>
+                </div>
+
+                <!-- Address -->
+                <div class="mb-3">
+                    <label for="address" class="form-label">Address</label>
+                    <textarea name="address" id="address" class="form-control" rows="3" required>{{ $profile->address }}</textarea>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary edit-submit-btn">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
 
 
 </div>
@@ -377,4 +448,117 @@
             preview.src = "https://via.placeholder.com/100/CCCCCC/FFFFFF"; // Reset preview if no file selected
         }
     }
+
+    function previewProfileImage(event) {
+        const file = event.target.files[0];
+        const preview = document.getElementById('profileImagePreview');
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result; // Update the preview image source
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.src = "https://via.placeholder.com/100/CCCCCC/FFFFFF"; // Reset preview if no file selected
+        }
+    }
+
+    $('.edit-submit-btn').click(function(e) {
+        e.preventDefault();
+
+        // Get form values
+        let fullname = $('#fullname').val();
+        let email = $('#email').val();
+        let gender = $('#gender').val();
+        let contact = $('#contact').val();
+        let address = $('#address').val();
+        let profileInput = document.getElementById('profileImage');
+        let profilePicture = profileInput && profileInput.files.length > 0 ? profileInput.files[0] : null;
+
+        // Create a FormData object
+        let formData = new FormData();
+        formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
+
+        formData.append('fullname', fullname);
+        formData.append('email', email);
+        formData.append('gender', gender);
+        formData.append('contact', contact);
+        formData.append('address', address);
+        if (profilePicture) {
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/svg+xml'];
+            if (!validTypes.includes(profilePicture.type)) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Invalid File Type",
+                    text: "Please select a valid image file (jpeg, png, jpg, gif, svg).",
+                    confirmButtonText: 'OK'
+                });
+                return; // Stop the submission if invalid type
+            }
+            formData.append('profilePicture', profilePicture);
+        }
+
+        console.log(formData);
+
+        $.ajax({
+            url: '/user_update',
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(res) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Update Success',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function(err) {
+                if (err.status === 422) {
+                    let errors = err.responseJSON.errors;
+                    for (let key in errors) {
+                        if (errors.hasOwnProperty(key)) {
+                            console.error(key + ": " + errors[key]);
+                        }
+                    }
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: "Please check the input data.",
+                        confirmButtonText: 'OK'
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: err.responseJSON.message || "An error occurred",
+                        confirmButtonText: 'OK'
+                    });
+                    console.error(err);
+                }
+            }
+        });
+
+        $('.isread-btn').click(function(e) {
+            e.preventDefault();
+
+            let id = $(this).data('id');
+
+            $.post('/read', {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                id: id,
+
+            }).done(function(res) {
+
+            }).fail(function(err) {
+
+            })
+        })
+    });
 </script>

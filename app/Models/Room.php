@@ -23,4 +23,15 @@ class Room extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function messages()
+    {
+        return $this->hasMany(RoomMessages::class, 'room_id');
+    }
+    public function getHasUnreadMessagesAttribute()
+    {
+        $lastMessage = $this->messages()->orderBy('created_at', 'desc')->first();
+
+        return $lastMessage && $lastMessage->isRead != 0 && $lastMessage->isRead != auth()->user()->id;
+    }
 }

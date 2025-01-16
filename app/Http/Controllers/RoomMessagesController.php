@@ -13,8 +13,11 @@ class RoomMessagesController extends Controller
     public function index(Request $request, $id)
     {
 
-        $messages = RoomMessages::with('user', 'seller')->where('room_id', $id)->orderBy('created_at', 'asc')->get();
+
+
+        $messages = RoomMessages::with('user', 'seller')->where('room_id', $id)->orderBy('created_at', 'desc')->get();
         $chat = Room::with('user', 'user_customer')->find($id);
+
 
         return view('pages.messages', ['items' => $messages, 'roomId' => $id, 'chat' => $chat]);
     }
@@ -46,6 +49,7 @@ class RoomMessagesController extends Controller
         $message->sender_id = auth()->user()->id;
         $message->room_id = $room->id; // Use the existing or newly created room ID
         $message->message = $request->input('message');
+        $message->isRead =  auth()->user()->id;
 
         // Handle image upload if present
         if ($request->hasFile('image')) {
@@ -72,6 +76,8 @@ class RoomMessagesController extends Controller
         $message->sender_id = auth()->user()->id;
         $message->room_id =  $request->input('room_id'); // Use the existing or newly created room ID
         $message->message = $request->input('message');
+        $message->isRead =  auth()->user()->id;
+
         $message->save();
 
         return redirect()->back()->with('success', 'Message sent successfully!');
@@ -79,9 +85,28 @@ class RoomMessagesController extends Controller
 
     public function fetchMessages($roomId)
     {
-        $items = RoomMessages::where('room_id', $roomId)->orderBy('created_at', 'asc')->get();
+        $items = RoomMessages::where('room_id', $roomId)->orderBy('created_at', 'desc')->get();
         $profile = auth()->user()->profile; // Adjust as needed
 
         return view('partials.messages', compact('items', 'profile', 'roomId'))->render();
+    }
+
+
+    public function readMessage(Request $request)
+    {
+        $message = RoomMessages::where('isRead', '!=', auth()->user()->id)
+            ->where('room_id', $request->input('id'))
+            ->latest()
+            ->first();
+
+        if ($message) {
+            // Update the message to mark it as read (assuming 0 means read here)
+            $message->update(['isRead' => 0]);
+
+            // Return a successful response
+            return response()->json(['message' => 'Message opened successfully']);
+        }
+
+        return response()->json(['message' => 'No unread message found in this room'], 404);
     }
 }

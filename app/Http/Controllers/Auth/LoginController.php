@@ -7,6 +7,7 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use App\Models\Product;
+use App\Models\Setting;
 
 class LoginController extends Controller
 {
@@ -75,7 +76,9 @@ class LoginController extends Controller
             $item->images = json_decode($item->images, true);
         }
 
+        $welcome = Setting::where('type', 'welcome')->get();
+        $faq = Setting::where('type', 'faq')->get();
 
-        return view('auth.login')->with('items', $items);
+        return view('auth.login', compact('items', 'welcome', 'faq'));
     }
 }

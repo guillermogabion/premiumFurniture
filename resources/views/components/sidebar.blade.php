@@ -91,8 +91,8 @@
                         <span class="menu-title">User List</span>
                     </a>
                 </li>
-                <li class="nav-item {{ request()->routeIs('users') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ route('users') }}">
+                <li class="nav-item {{ request()->routeIs('setting') ? 'active' : '' }}">
+                    <a class="nav-link" href="{{ route('setting') }}">
                         <i class="fas fa-cog"></i>
                         <span class="menu-title">Settings</span>
                     </a>

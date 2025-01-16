@@ -13,7 +13,8 @@ class RoomMessages extends Model
         'seller_id',
         'room_id',
         'message',
-        'image'
+        'image',
+        'isRead'
     ];
     public function user()
     {

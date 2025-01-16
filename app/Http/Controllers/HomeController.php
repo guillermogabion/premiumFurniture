@@ -9,7 +9,9 @@ use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Room;
 use App\Models\Order;
+use App\Models\RoomMessages;
 use App\Models\User;
+use App\Models\Setting;
 
 class HomeController extends Controller
 {
@@ -62,7 +64,7 @@ class HomeController extends Controller
         }
 
         // Fetch inbox and cart details
-        $inbox = Room::where('user_id', auth()->user()->id)->get();
+        $inbox = Room::with('messages')->where('user_id', auth()->user()->id)->get();
         $cart = Cart::with(['product.user.gcash'])->where('user_id', auth()->user()->id)->get();
         $category = Category::all(); // Get categories for the dropdown
         $total_user = User::count();
@@ -103,6 +105,14 @@ class HomeController extends Controller
 
 
 
+        $welcome = Setting::where('type', 'welcome')->get();
+        $faq = Setting::where('type', 'faq')->get();
+
+        $newmessage = RoomMessages::where('isRead', auth()->user()->id)->exists();
+
+
+
+
 
 
         return view('pages.home', [
@@ -124,7 +134,14 @@ class HomeController extends Controller
             'toShipCount' => $toShipCount,
             'shippingCount' => $shippingCount,
             'receivedCount' => $receivedCount,
-            'cancelledCount' => $cancelledCount
+            'cancelledCount' => $cancelledCount,
+
+
+            'welcome' => $welcome,
+            'faq' => $faq,
+            'newmessage' => $newmessage,
+
+
         ]);
     }
 }

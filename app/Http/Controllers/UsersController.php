@@ -149,22 +149,32 @@ class UsersController extends Controller
 
     public function update(Request $request)
     {
-        $request->validate([
-            'userId' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $request->id,
-            'role' => 'required|string',
-        ]);
 
         // Find the user by ID
-        $item = User::findOrFail($request->id);
+        $user = User::findOrFail(auth()->user()->id);
 
-        // Update the user's fields
-        $item->fill($request->all());
+        // Update user properties
+        $user->fullname = $request->input('fullname', $user->fullname);
+        $user->email = $request->input('email', $user->email);
+        $user->contact = $request->input('contact', $user->contact);
+        $user->gender = $request->input('gender', $user->gender);
+        $user->address = $request->input('address', $user->address);
+        $user->role = $request->input('role', $user->role);
+        $user->shop_name = $request->input('shop_name', $user->shop_name);
+        $user->type = $request->input('type', $user->type);
 
-        // Save the updated user
-        $item->save();
+        // Handle profile picture upload
+        if ($request->hasFile('profilePicture')) {
+            $imageName = time() . '.' . $request->profilePicture->extension();
+            $request->profilePicture->move(public_path('profile'), $imageName);
+            $user->profile = $imageName;
+        }
 
-        return redirect()->route('users')->with('success', 'User updated successfully');
+        // Update the user in the database
+        $user->save();
+
+        // Return a success response
+        return response()->json(['message' => 'User updated successfully.']);
     }
     public function updateStatus(Request $request)
     {

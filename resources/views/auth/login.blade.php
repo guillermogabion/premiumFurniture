@@ -38,15 +38,26 @@
 </header>
 
 <!-- Home Section -->
-<section id="home"
-    class="vh-100 d-flex align-items-center justify-content-center text-center text-white"
-    style="background-image: url('{{ asset('img/download.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
-    <div class="container">
-        <h1 class="display-4 fw-bold">PREMIER FURNITURE PH</h1>
-        <p class="lead">Discover our amazing products and learn more about us.</p>
+<section id="home" class="vh-100 d-flex align-items-center justify-content-center text-center text-white position-relative">
+    <div class="slideshow-container position-absolute w-100 h-100">
+        @forelse ($welcome as $come)
+        <div class="slide" style="background-image: url('{{ asset('upload-image/' . $come->image) }}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+            <div class="slide-message mt-5">
+                <div>{!! $come->message !!}</div>
+                <div>{!! $come->submessage !!}</div>
+            </div>
+        </div>
+        @empty
+        <div class="slide" style="background-color: #333;">
+            <p>No images available</p>
+        </div>
+        @endforelse
+    </div>
+    <div class="container position-relative z-1">
         <a href="#products" class="btn btn-orange btn-lg">Explore Products</a>
     </div>
 </section>
+
 
 <!-- Products Section -->
 <section id="products" class="py-5 bg-light">
@@ -196,6 +207,57 @@
     </div>
 </div>
 
+<style>
+    #home {
+        overflow: hidden;
+    }
+
+    .slideshow-container {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .slide-message {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        font-size: 1.5rem;
+        text-align: center;
+        max-width: 80%;
+        line-height: 1.5;
+    }
+
+    .slide-message div {
+        margin: 10px 0;
+        /* Adds space between message and submessage */
+    }
+
+    .slide-message * {
+        margin: 0;
+        /* Remove default margins from nested elements */
+    }
+</style>
+
+
+
+
 
 @if (session('login_error'))
 <script>
@@ -205,6 +267,33 @@
 
 
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const slides = document.querySelectorAll(".slide");
+        let currentIndex = 0;
+
+        // Initialize all slides
+        slides.forEach((slide, index) => {
+            slide.style.transform = index === 0 ? "translateX(0)" : "translateX(100%)";
+            slide.style.transition = "transform 1s ease-in-out";
+            slide.style.position = "absolute";
+            slide.style.top = "0";
+            slide.style.left = "0";
+            slide.style.width = "100%";
+            slide.style.height = "100%";
+        });
+
+        function showNextSlide() {
+            const nextIndex = (currentIndex + 1) % slides.length;
+            slides[currentIndex].style.transform = "translateX(-100%)";
+            slides[nextIndex].style.transform = "translateX(0%)";
+            currentIndex = nextIndex;
+        }
+
+        // Automatically move to the next slide every 5 seconds
+        setInterval(showNextSlide, 5000);
+    });
+
+
     function togglePasswordVisibility(inputId, icon) {
 
         const input = document.getElementById(inputId);
