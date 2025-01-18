@@ -395,7 +395,7 @@
                         text: 'Update Successful',
                         icon: 'success',
                         confirmButtonText: 'OK',
-                    }).then(() => window.location.reload());
+                    })  
                 },
                 error: function(err) {
                     console.error(err);

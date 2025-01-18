@@ -122,6 +122,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/settings', [SettingController::class, 'index'])->name('setting');
     Route::post('/addText', [SettingController::class, 'addOns'])->name('add-text');
+    Route::post('/delete-item', [SettingController::class, 'deleteItem'])->name('delete-text');
 
     Route::post('/read', [RoomMessagesController::class, 'readMessage'])->name('read');
 });

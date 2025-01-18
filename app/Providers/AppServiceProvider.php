@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\UserOrganization;
+use App\Models\Setting;
 use App\Models\RoomMessages;
 
 class AppServiceProvider extends ServiceProvider
@@ -63,6 +64,9 @@ class AppServiceProvider extends ServiceProvider
                 // Fetch inbox messages
                 $inbox = Room::with('user', 'messages')->where('seller_id', auth()->user()->id)->get();
                 $view->with('inbox', $inbox);
+
+                $faq = Setting::where('type', 'faq')->get();
+                $view->with('faq', $faq);
             } else {
                 $view->with('profile', null);
                 $view->with('organization', null);

@@ -29,6 +29,9 @@
                         <a class="nav-link text-white" href="#about">About Us</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link text-white" href="#faq">FAQ</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link text-white" data-bs-toggle="modal" data-bs-target="#loginModal" href="#">Sign In</a>
                     </li>
                 </ul>
@@ -121,6 +124,24 @@
             Our team works tirelessly to meet the needs of our valued customers.
         </p>
     </div>
+</section>
+
+<section id="faq" class="py-5 bg-light">
+    <div class=" position-absolute w-100 h-100">
+        <h2 class="text-center mb-4">FAQ</h2>
+
+        @forelse ($faq as $question)
+        <div class="text-center">
+            <div class=" mt-5">
+                <div>{!! $question->message !!}</div>
+                <div>{!! $question->submessage !!}</div>
+            </div>
+        </div>
+        @empty
+
+        @endforelse
+    </div>
+
 </section>
 
 <!-- Login Modal -->

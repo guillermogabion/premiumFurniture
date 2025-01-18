@@ -42,9 +42,11 @@
                                                 <td>{{ $item->submessage}}</td>
 
                                                 <td>
-                                                    <button type="button" class="btn btn-rounded btn-icon edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{ $item->id }}" data-name="{{ $item->name }}">
-                                                        <i class="fa fa-edit text-primary"></i>
+
+                                                    <button type="button" data-bs-toggle="modal" data-bs-target="#loadingModal" class="btn btn-rounded btn-icon delete-btn" data-id="{{ $item->id }}">
+                                                        <i class="fa fa-trash text-danger"></i>
                                                     </button>
+
                                                 </td>
                                             </tr>
                                             @empty
@@ -117,49 +119,100 @@
 </div>
 
 <!-- Edit Modal -->
-<div class="{{ auth()->user()->isReset !== '1' ? 'd-none' : '' }}">
-    <div id="resetModal" class="modal fade" tabindex="-1" aria-labelledby="resetModalLabel" aria-hidden="true">
+<div>
+    <div id="editModal" class="modal fade" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md">
             <div class="modal-content border-0 shadow-lg rounded-4">
                 <!-- Modal Header -->
                 <div class="modal-header custom-orange text-white border-0 rounded-top">
-                    <h5 class="modal-title fw-bold" id="invoiceModalLabel">Reset</h5>
+                    <h5 class="modal-title fw-bold" id="invoiceModalLabel">Edit</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body px-5 py-4">
-                    <form id="updateForm" onsubmit="return validatePasswords(event)">
-                        <div class="form-group position-relative">
-                            <input type="password" id="passwordInputReset" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="new-password" placeholder="Password">
-                            <span class="position-absolute"
-                                style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
-                                onclick="togglePasswordVisibility('passwordInputReset', this)">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                            @error('password')
-                            <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                            </span>
-                            @enderror
-                        </div>
-                        <div class="form-group position-relative">
-                            <input type="password" id="passwordInputConfirmReset" class="form-control" name="password_confirmation" required autocomplete="new-password" placeholder="Confirm Password">
-                            <span class="position-absolute"
-                                style="top: 53.5%; right: 3rem; transform: translateY(-50%); cursor: pointer; z-index: 10;"
-                                onclick="togglePasswordVisibility('passwordInputConfirmReset', this)">
-                                <i class="fas fa-eye"></i>
-                            </span>
-                        </div>
-                        <div id="passwordError" class="text-danger mt-2 d-none">Passwords do not match.</div>
-                        <button type="submit" class="btn btn-primary mt-4">Reset Password</button>
-                    </form>
+                    <div class="modal-body">
+                        <form id="editForm" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="form-group">
+                                <input type="hidden" id="editId" name="id">
+                                <label for="editType">Type:</label>
+                                <select id="editType" name="type" class="form-control" required>
+                                    <option value="welcome">Welcome</option>
+                                    <option value="faq">FAQ</option>
+                                </select>
+                            </div>
+
+                            <!-- Image Upload Section -->
+                            <div class="form-group w-100" style="height: 150px;">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <label for="editPicture">
+                                        <img id="editImage" src="https://www.gravatar.com/avatar/?d=mp&s=120" alt="Welcome Image" style="width: 100%; height: 120px; cursor: pointer;">
+                                    </label>
+                                    <input type="file" id="editPicture" name="editPicture" accept="image/*" style="display: none;" onchange="previewEditImage(event)">
+                                    @error('editPicture')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <!-- Message Section -->
+                            <div class="form-group">
+                                <label for="editMessage">Message:</label>
+                                <textarea id="editMessage" name="editMessage" class="form-control" required></textarea>
+                                @error('editMessage')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+
+                            <!-- Submessage Section -->
+                            <div class="form-group">
+                                <label for="editSubMessage">Submessage:</label>
+                                <textarea id="editSubMessage" name="editSubMessage" class="form-control" required></textarea>
+                                @error('editSubMessage')
+                                <span class="invalid-feedback" role="alert">
+                                    <strong>{{ $message }}</strong>
+                                </span>
+                                @enderror
+                            </div>
+
+                            <button type="submit" class="btn btn-primary mt-4 edit-submit-btn">Submit</button>
+                        </form>
+
+                        <script>
+                            // Initialize Froala Editor on the fields
+                            new FroalaEditor('#editMessage', {
+                                toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+                                quickInsertEnabled: false,
+                            });
+
+                            new FroalaEditor('#editSubMessage', {
+                                toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+                                quickInsertEnabled: false,
+                            });
+                        </script>
+
+                    </div>
+
                 </div>
                 <!-- Modal Body -->
             </div>
         </div>
     </div>
 </div>
+
+<div id="loadingModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="loadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="loader" id="loader"></div>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Froala Editor CSS -->
-<link href="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/css/froala_editor.pkgd.min.css" rel="stylesheet">
 
 <!-- jQuery (required for Froala Editor) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -167,8 +220,8 @@
 <!-- Froala Editor JS -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/js/froala_editor.pkgd.min.js"></script>
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
+<link href="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/css/froala_editor.pkgd.min.css" rel="stylesheet">
 <!-- Froala Editor CSS -->
 
 <script>
@@ -194,10 +247,60 @@
         }
     });
 
+    $('.edit-btn').click(function() {
+        let id = $(this).data('id');
+        let type = $(this).data('type');
+        let message = $(this).data('message');
+        let submessage = $(this).data('submessage');
+        let images = $(this).data('image');
+
+
+
+        $('#editId').val(id);
+        $('#editType').val(type);
+        const itemMessageEditor = new FroalaEditor('#editMessage', {
+            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+            quickInsertEnabled: false,
+        });
+
+        const itemSubMessageEditor = new FroalaEditor('#editSubMessage', {
+            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+            quickInsertEnabled: false,
+        });
+
+        // Set the values in the Froala editor fields
+        itemMessageEditor.html.set(message); // Set the message in the editor
+        itemSubMessageEditor.html.set(submessage);
+
+
+        if (images) {
+            $('#editImage').attr('src', '/upload-image/' + images);
+        } else {
+            // If no image is available, use a default image
+            let defaultImage = `<img src="{{ asset('img/kaiadmin/logos.png') }}" alt="Default Image" style="width: 220px; height: 220px; border-radius: 20px;">`;
+            $('#editImage').append(defaultImage);
+        }
+
+
+
+        // Show the modal
+        $('#editModal').modal('show');
+    })
+
+
     function previewImage(event) {
         const reader = new FileReader();
         reader.onload = function() {
             const output = document.getElementById('welcomeImage');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+
+    function previewEditImage(event) {
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('editImage');
             output.src = reader.result;
         };
         reader.readAsDataURL(event.target.files[0]);
@@ -234,13 +337,7 @@
             $('#addModal').modal('show');
         });
 
-        $('.edit-btn').click(function() {
-            let id = $(this).data('id');
-            let name = $(this).data('name');
-            $('#itemId').val(id);
-            $('#itemName').val(name);
-            $('#editModal').modal('show');
-        });
+
 
         $('.add-btn').click(function(e) {
             e.preventDefault();
@@ -269,7 +366,7 @@
                         title: 'Success!',
                         text: 'Your content has been added successfully.',
                         icon: 'success',
-                    });
+                    }).then(() => window.location.reload());
                 },
                 error: function(err) {
                     Swal.fire({
@@ -281,59 +378,62 @@
             });
         })
 
-        $('.edit-submit-btn').click(function(e) {
+
+        $('.delete-btn').click(function(e) {
             e.preventDefault();
+            let id = $(this).data('id');
+            $('#loadingModal').show();
 
-            // Get form values
-            let id = $('#itemId').val();
-            let name = $('#itemName').val();
+            setTimeout(function() {
+                $.post('/delete-item', {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    id: id,
 
 
-            $.post('/type_edit', {
-                _token: $('meta[name="csrf-token"]').attr('content'),
-                id: id,
-                name: name,
 
-            }).done(function(res) {
-                Swal.fire({
-                    title: 'Success!',
-                    text: 'Saving Success',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.reload();
-                    }
-                });
-            }).fail(function(err) {
-                if (err.status === 422) {
-                    let errors = err.responseJSON.errors;
-                    for (let key in errors) {
-                        if (errors.hasOwnProperty(key)) {
-                            console.error(key + ": " + errors[key]);
-                        }
-                    }
+                }).done(function(res) {
                     Swal.fire({
-                        icon: "error",
-                        title: "Validation Error",
-                        text: errors.name[0],
+                        title: 'Success!',
+                        text: 'Removing Success',
+                        icon: 'success',
                         confirmButtonText: 'OK'
                     }).then((result) => {
                         if (result.isConfirmed) {
                             window.location.reload();
                         }
                     });
-                } else {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Oops...",
-                        text: err.responseJSON.message || "An error occurred",
-                        confirmButtonText: 'OK'
-                    });
-                    console.error(err);
-                }
-            })
-        });
+                }).fail(function(err) {
+                    if (err.status === 422) {
+                        let errors = err.responseJSON.errors;
+                        for (let key in errors) {
+                            if (errors.hasOwnProperty(key)) {
+                                console.error(key + ": " + errors[key]);
+                            }
+                        }
+                        Swal.fire({
+                            icon: "error",
+                            title: "Validation Error",
+                            text: errors.name[0],
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: "error",
+                            title: "Oops...",
+                            text: err.responseJSON.message || "An error occurred",
+                            confirmButtonText: 'OK'
+                        });
+                        console.error(err);
+                    }
+                })
+
+
+            }, 2000)
+        })
 
 
     })
