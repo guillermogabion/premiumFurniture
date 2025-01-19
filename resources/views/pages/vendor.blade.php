@@ -90,25 +90,19 @@
 <div id="imageModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="imageModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-            <!-- Modal Header -->
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="imageModalLabel">Documents</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <!-- Modal Body -->
             <div class="modal-body">
-                <!-- GCash QR Code Section -->
                 <div id="gcashSection" class="text-center mb-4"></div>
 
-                <!-- Informational Message -->
                 <p class="text-center w-100 text-muted" id="noDocumentsMessage">No documents available.</p>
 
-                <!-- Responsive Grid for Images -->
                 <div class="row g-2" id="imagesRow"></div>
             </div>
 
-            <!-- Modal Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
@@ -130,16 +124,15 @@
         $('tr').click(function() {
 
             var documents = $(this).data('documents');
-            var gcashQrCode = $(this).data('gcash'); // Fetch GCash QR Code dynamically
+            var gcashQrCode = $(this).data('gcash');
             var imagesRow = $('#imagesRow');
             var noDocumentsMessage = $('#noDocumentsMessage');
             var gcashSection = $('#gcashSection');
 
-            imagesRow.empty(); // Clear previous images
-            noDocumentsMessage.show(); // Show "No documents" message by default
-            gcashSection.empty(); // Clear previous GCash QR code
+            imagesRow.empty();
+            noDocumentsMessage.show();
+            gcashSection.empty();
 
-            // Render GCash QR Code if available
             if (gcashQrCode) {
                 var gcashContent = `
                 <h6 class="text-muted">GCash QR Code</h6>
@@ -152,10 +145,9 @@
                 gcashSection.html(gcashContent);
                 gcashSection.show();
             } else {
-                gcashSection.hide(); // Hide section if no QR Code
+                gcashSection.hide();
             }
 
-            // Render document images if available
             if (documents && Array.isArray(documents) && documents.length > 0) {
                 noDocumentsMessage.hide(); // Hide "No documents" message
                 documents.forEach(function(document, index) {

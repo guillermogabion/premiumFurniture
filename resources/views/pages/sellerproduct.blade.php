@@ -69,7 +69,6 @@
                     </li>
                 </ul>
             </div>
-            <!-- Profile Avatar and Dropdown -->
 
 
             <div></div>
@@ -79,14 +78,12 @@
 
 <section id="products" class="py-5 bg-light">
     <div class="container">
-        <!-- Display the Shop Name -->
         @if (!empty($items) && isset($items[0]->shop_name))
         <h2 class="text-center mb-4 text-primary">{{ $items[0]->shop_name }}</h2>
         @else
         <h2 class="text-center mb-4 text-primary">Shop Name</h2>
         @endif
         <div class="row g-4 justify-content-center">
-            <!-- Search Form -->
             <div class="row mb-3">
                 <div class="col-lg-12 col-md-6">
                     <form method="GET" action="{{ route('home') }}#products">
@@ -98,7 +95,6 @@
                 </div>
             </div>
 
-            <!-- Products Display -->
             @forelse ($items as $item)
             @forelse ($item->sellers as $seller)
             <div class="col-md-4 col-lg-3">

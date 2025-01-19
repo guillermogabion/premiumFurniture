@@ -70,7 +70,6 @@
     </div>
 </div>
 
-<!-- Add Modal -->
 <div id="addModal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -118,7 +117,6 @@
     </div>
 </div>
 
-<!-- Edit Modal -->
 <div>
     <div id="editModal" class="modal fade" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-md">
@@ -212,34 +210,26 @@
         </div>
     </div>
 </div>
-<!-- Froala Editor CSS -->
 
-<!-- jQuery (required for Froala Editor) -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<!-- Froala Editor JS -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/js/froala_editor.pkgd.min.js"></script>
 
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <link href="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/css/froala_editor.pkgd.min.css" rel="stylesheet">
-<!-- Froala Editor CSS -->
 
 <script>
     $(document).ready(function() {
-        // Monitor the dropdown value change
         $('#addType').change(function() {
             const type = $(this).val();
 
             if (type === 'faq') {
-                // Hide the image field
                 $('.form-group.w-100').hide();
             } else {
-                // Show the image field
                 $('.form-group.w-100').show();
             }
         });
 
-        // Initial state on page load
         if ($('#addType').val() === 'faq') {
             $('.form-group.w-100').hide();
         } else {
@@ -268,22 +258,19 @@
             quickInsertEnabled: false,
         });
 
-        // Set the values in the Froala editor fields
-        itemMessageEditor.html.set(message); // Set the message in the editor
+        itemMessageEditor.html.set(message);
         itemSubMessageEditor.html.set(submessage);
 
 
         if (images) {
             $('#editImage').attr('src', '/upload-image/' + images);
         } else {
-            // If no image is available, use a default image
             let defaultImage = `<img src="{{ asset('img/kaiadmin/logos.png') }}" alt="Default Image" style="width: 220px; height: 220px; border-radius: 20px;">`;
             $('#editImage').append(defaultImage);
         }
 
 
 
-        // Show the modal
         $('#editModal').modal('show');
     })
 
@@ -306,14 +293,12 @@
         reader.readAsDataURL(event.target.files[0]);
     }
     $(document).ready(function() {
-        // Initialize Froala editor on the textarea with ID 'message'
 
         new FroalaEditor('#message', {
             toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
             quickInsertEnabled: false,
         });
 
-        // Initialize Froala editor on the textarea with ID 'submessage'
         new FroalaEditor('#submessage', {
             toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
             quickInsertEnabled: false,
@@ -325,11 +310,11 @@
         const confirmPassword = document.getElementById('passwordInputConfirmReset').value;
         const errorDiv = document.getElementById('passwordError');
         if (password !== confirmPassword) {
-            event.preventDefault(); // Prevent form submission
-            errorDiv.classList.remove('d-none'); // Show error message
+            event.preventDefault();
+            errorDiv.classList.remove('d-none');
             return false;
         }
-        errorDiv.classList.add('d-none'); // Hide error message if passwords match
+        errorDiv.classList.add('d-none');
         return true;
     }
     $(document).ready(function() {
@@ -341,11 +326,15 @@
 
         $('.add-btn').click(function(e) {
             e.preventDefault();
-            let type = document.getElementById('addType').value
-            let message = document.getElementById('message').value
-            let submessage = document.getElementById('submessage').value
-            let image = document.getElementById('welcomePicture').files[0]
 
+            // Show the loading modal
+            $('#loadingModal').modal('show');
+
+
+            let type = document.getElementById('addType').value;
+            let message = document.getElementById('message').value;
+            let submessage = document.getElementById('submessage').value;
+            let image = document.getElementById('welcomePicture').files[0];
 
             let formData = new FormData();
             formData.append('_token', $('meta[name="csrf-token"]').attr('content'));
@@ -353,36 +342,45 @@
             formData.append('message', message);
             formData.append('submessage', submessage);
             if (image) {
-                formData.append('image', image); // Add the image file to the request
+                formData.append('image', image);
             }
-            $.ajax({
-                url: '/addText',
-                type: 'POST',
-                data: formData,
-                contentType: false, // Prevent jQuery from setting content type
-                processData: false, // Prevent jQuery from processing the FormData object
-                success: function(res) {
-                    Swal.fire({
-                        title: 'Success!',
-                        text: 'Your content has been added successfully.',
-                        icon: 'success',
-                    }).then(() => window.location.reload());
-                },
-                error: function(err) {
-                    Swal.fire({
-                        title: 'Error!',
-                        text: 'Something went wrong.',
-                        icon: 'error',
-                    });
-                },
-            });
-        })
+
+            setTimeout(function() {
+                $.ajax({
+                    url: '/addText',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(res) {
+                        $('#loadingModal').modal('hide');
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Your content has been added successfully.',
+                            icon: 'success',
+                        }).then(() => window.location.reload());
+                    },
+                    error: function(err) {
+
+                        $('#loadingModal').modal('hide');
+
+                        $('#loadingModal').hide();
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Something went wrong.',
+                            icon: 'error',
+                        });
+                    },
+                });
+            }, 2000);
+        });
+
 
 
         $('.delete-btn').click(function(e) {
             e.preventDefault();
             let id = $(this).data('id');
-            $('#loadingModal').show();
+            $('#loadingModal').modal('show');
 
             setTimeout(function() {
                 $.post('/delete-item', {
@@ -402,6 +400,9 @@
                             window.location.reload();
                         }
                     });
+                    $('#loadingModal').modal('hide');
+
+
                 }).fail(function(err) {
                     if (err.status === 422) {
                         let errors = err.responseJSON.errors;

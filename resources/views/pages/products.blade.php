@@ -224,6 +224,16 @@
     </div>
 </div>
 
+<div id="loadingModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="loadModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <div class="loader" id="loader"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <script>
@@ -265,6 +275,8 @@
         });
 
         $('.edit-btn').click(function() {
+
+
             let id = $(this).data('id');
             let name = $(this).data('name');
             let category = $(this).data('category');
@@ -316,6 +328,7 @@
 
         $('.add-btn').click(function(e) {
             e.preventDefault();
+            $('#loadingModal').modal('show');
 
             let name = document.getElementById('addName').value;
             let category = document.getElementById('addCategory').value;
@@ -341,6 +354,8 @@
                 contentType: false,
                 processData: false,
                 success: function(res) {
+                    $('#loadingModal').modal('hide');
+
                     Swal.fire({
                         title: 'Success!',
                         text: 'Product added successfully.',
@@ -349,6 +364,8 @@
                     }).then(() => window.location.reload());
                 },
                 error: function(err) {
+                    $('#loadingModal').modal('hide');
+
                     Swal.fire({
                         icon: "error",
                         title: "Oops...",
@@ -363,6 +380,7 @@
 
         $('.edit-submit-btn').click(function(e) {
             e.preventDefault();
+            $('#loadingModal').modal('show');
 
             let id = $('#itemId').val();
             let name = $('#itemName').val();
@@ -390,15 +408,19 @@
                 contentType: false,
                 processData: false,
                 success: function(res) {
+                    $('#loadingModal').modal('hide');
+
                     Swal.fire({
                         title: 'Success!',
                         text: 'Update Successful',
                         icon: 'success',
                         confirmButtonText: 'OK',
-                    })  
+                    })
                 },
                 error: function(err) {
                     console.error(err);
+                    $('#loadingModal').modal('hide');
+
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
