@@ -10,6 +10,7 @@
 /public/paymentqrcode
 /public/product
 /public/profile
+/public/upload-image
 /public/qrcode
 /storage/*.key
 /vendor
