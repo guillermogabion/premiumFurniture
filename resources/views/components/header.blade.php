@@ -72,6 +72,10 @@
                             <div class="card mb-2 mx-2 isread-btn" data-id="{{ $message->id }}" onclick="window.location='{{ route('messages', ['inboxId' => $message->id]) }}'" style="cursor: pointer;">
                                 <div class="card-body">
 
+                                    @if((int)$message->messages->last()->isRead !== 0 && (int)$message->messages->last()->isRead !== auth()->user()->id)
+                                    <span class="dot"></span> <!-- Red dot indicator -->
+                                    @endif
+
                                     @if($profile->role !== 'vendor')
                                     <h6 class="text-sm">{{ $message->user->fullname }}</h6>
                                     @else
@@ -79,9 +83,7 @@
                                     @endif
                                     <small class="text-muted">{{ $message->created_at->format('M d, Y h:i A') }}</small>
                                 </div>
-                                @if((int)$message->messages->last()->isRead !== 0 && (int)$message->messages->last()->isRead !== auth()->user()->id)
-                                <span class="dot"></span> <!-- Red dot indicator -->
-                                @endif
+
                             </div>
                             <hr>
                             @endforeach

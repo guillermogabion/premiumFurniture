@@ -24,19 +24,16 @@ class RoomMessagesController extends Controller
 
     public function addMessage(Request $request)
     {
-        // Validate request inputs
         $request->validate([
             'seller_id' => 'required|integer',
             'message' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        // Check if a room exists
         $room = Room::where('user_id', auth()->user()->id)
             ->where('seller_id', $request->input('seller_id'))
             ->first();
 
-        // If no room exists, create a new one
         if (!$room) {
             $room = new Room();
             $room->user_id = auth()->user()->id;

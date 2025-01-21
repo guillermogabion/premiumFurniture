@@ -60,6 +60,7 @@ class UsersController extends Controller
                 ->orWhere('email', 'like', '%' . $search . '%');
         })->with('document', 'gcash')
             ->where('role', 'vendor')
+            ->where('status', '!=', 'rejected')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -348,6 +349,8 @@ class UsersController extends Controller
             'Role',
             'Action'
         ];
+
+        // Retrieve the sellers with the necessary relationships loaded
         $items = User::with([
             'sellers' => function ($query) {
                 $query->select(
@@ -355,37 +358,50 @@ class UsersController extends Controller
                     'products.name',
                     'products.description',
                     'products.category',
-                    'products.image',
+                    'products.images',
                     'products.price',
                     'products.user_id',
                     'products.created_at',
                     'products.status',
                     \DB::raw('(SELECT COUNT(*) FROM ratings WHERE ratings.product_id = products.id) AS ratings_count'),
                     \DB::raw('IFNULL(AVG(ratings.rating), 0) AS average_rating')
-                )->leftJoin('ratings', 'ratings.product_id', '=', 'products.id')
+                )
+                    ->leftJoin('ratings', 'ratings.product_id', '=', 'products.id')
                     ->groupBy(
                         'products.id',
                         'products.name',
                         'products.description',
                         'products.category',
-                        'products.image',
+                        'products.images',
                         'products.price',
                         'products.user_id',
                         'products.created_at',
                         'products.status'
-                    );
+                    )
+                    ->with('ratings.user'); // Load ratings user relation
             }
         ])
             ->where('id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Decode images after retrieving sellers
+        foreach ($items as $user) {
+            foreach ($user->sellers as $seller) {
+                $seller->images = json_decode($seller->images, true);
+            }
+        }
 
         $user = User::find(auth()->user()->id);
 
-
-        return view('pages.sellerproduct', ['test' => $user, 'headers' => $table_header, 'items' => $items, 'search' => $search]);
+        return view('pages.sellerproduct', [
+            'test' => $user,
+            'headers' => $table_header,
+            'items' => $items,
+            'search' => $search
+        ]);
     }
+
 
     public function resetMyPassword(Request $request)
     {

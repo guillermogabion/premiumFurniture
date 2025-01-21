@@ -87,25 +87,45 @@ class ProductController extends Controller
     }
 
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
-        $product = Product::findOrFail($request->id);
+        $product = Product::findOrFail($id);
+
+        $request->validate([
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string',
+            'sampleImage' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        ]);
+
         $product->name = $request->input('name');
         $product->category = $request->input('category');
         $product->price = $request->input('price');
         $product->description = $request->input('description');
 
-        if ($request->has('images')) {
-            $images = $request->images;
-            foreach ($images as $image) {
-                $imageName = time() . '.' . $image->extension();
-                $image->move(public_path('product'), $imageName);
-                $product->images[] = $imageName; // Store the new images array
+
+        if ($request->hasFile('images')) {
+            $oldImages = json_decode($product->images, true);
+            foreach ($oldImages as $oldImage) {
+                $oldImagePath = public_path('product/' . $oldImage);
+                if (file_exists($oldImagePath)) {
+                    unlink($oldImagePath);
+                }
             }
+
+            $imageNames = [];
+            foreach ($request->file('images') as $image) {
+                $imageName = time() . '_' . uniqid() . '.' . $image->extension();
+                $image->move(public_path('product'), $imageName);
+                $imageNames[] = $imageName;
+            }
+            $product->images = json_encode($imageNames);
         }
 
         $product->save();
 
-        return redirect()->route('products')->with('success', 'Product updated successfully');
+        return redirect()->route('products')->with('success', 'Product updated successfully.');
     }
 }

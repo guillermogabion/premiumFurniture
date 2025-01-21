@@ -17,8 +17,8 @@ class CreateSettingsTable extends Migration
             $table->id();
             $table->enum('type', ['welcome', 'faq']);
             $table->string('image')->nullable();
-            $table->string('message')->nullable();
-            $table->string('submessage')->nullable();
+            $table->text('message')->nullable();
+            $table->text('submessage')->nullable();
             $table->timestamps();
         });
     }

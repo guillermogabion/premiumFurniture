@@ -675,7 +675,8 @@ textarea.form-control:focus {
 }
 /* Add to your CSS file or within a <style> tag */
 #imageGallery {
-  height: 400px; /* Set the height for the scrollable area */
+  min-height: 100px; 
+  max-height: 400px; 
   overflow-y: auto; /* Enable vertical scrolling */
   /* Stack images vertically */
 }
@@ -745,3 +746,33 @@ textarea.form-control:focus {
   text-align: center;
 }
 
+.dot {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+}
+
+
+.cart-checkbox:checked {
+  background-color: #D2700F; /* Green background color when checked */
+  border-color: #D2700F; /* Green border when checked */
+}
+
+
+.cart-checkbox {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  position: relative;
+  background-color: white; /* White background for unchecked state */
+}
+
+#itemDescription {
+  min-height: 100px; 
+  max-height: 400px; 
+  overflow-y: auto;
+}

@@ -46,7 +46,6 @@ class SupportDocumentController extends Controller
             $additionalImagePath = $imageName;
         }
 
-        // Example of saving the document paths in the SupportDocument model
         $supportDocument = new SupportDocument();
         $supportDocument->user_id = auth()->id();
         $supportDocument->documents = json_encode($documentPaths);

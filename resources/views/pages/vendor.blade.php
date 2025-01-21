@@ -53,7 +53,7 @@
                                                                 <input type="hidden" name="status" id="statusInput{{ $item->id }}" value="">
                                                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('active', {{ $item->id }});">Activate/Verified</a>
                                                                 <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('disabled', {{ $item->id }});">Disabled</a>
-                                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('reject', {{ $item->id }});">Rejected</a>
+                                                                <a class="dropdown-item" href="#" onclick="event.preventDefault(); setStatus('rejected', {{ $item->id }});">Rejected</a>
                                                             </form>
                                                         </div>
                                                     </div>

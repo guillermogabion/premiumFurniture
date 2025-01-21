@@ -238,7 +238,6 @@
                 @forelse ($items as $item)
                 <div class="col-md-4 col-lg-3">
                     <div class="card shadow-sm border-0 h-100">
-
                         <div class="position-relative overflow-hidden">
                             <img
                                 src="{{ asset('product/' . ($item->images[0] ?? 'img/kaiadmin/logos.png')) }}"
@@ -665,7 +664,7 @@
                                             data-owner="{{ $item->product->user->shop_name }}"
                                             data-ownerId="{{ $item->product->user->id }}"
                                             id="cartItem{{ $item->id }}"
-                                            style="width: 24px; height: 24px; cursor: pointer; border: 2px solid #D2700F; ">
+                                            style="width: 24px; height: 24px; cursor: pointer; border: 2px solid #D2700F;  appearance: none; -webkit-appearance: none; ">
                                         <label
                                             class="form-check-label fw-bold text-dark"
                                             for="cartItem{{ $item->id }}"
@@ -1921,20 +1920,14 @@
 
     document.getElementById("editOrder").addEventListener("click", function() {
         // Select all checkboxes with the class 'cart-checkbox' and uncheck them
-
-        const checkboxes = document.querySelectorAll('.cart-checkbox');
-
-        checkboxes.forEach(function(checkbox) {
-            checkbox.disabled = false;
+        document.querySelectorAll(".cart-checkbox").forEach(function(checkbox) {
+            checkbox.checked = false;
         });
+
         // Optionally reset the total price and hide checkout-related elements
         document.getElementById("totalPrice").textContent = "0.00";
         document.getElementById("proceedCheckoutButton").style.display = "none";
         document.getElementById("checkoutFormContainer").style.display = "none";
-        document.getElementById('editOrder').style.display = 'none';
-        document.getElementById('checkoutButton').style.display = 'block';
-
-
     });
 
     function previewProfileImage(event) {

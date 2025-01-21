@@ -249,12 +249,12 @@
         $('#editId').val(id);
         $('#editType').val(type);
         const itemMessageEditor = new FroalaEditor('#editMessage', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
             quickInsertEnabled: false,
         });
 
         const itemSubMessageEditor = new FroalaEditor('#editSubMessage', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
             quickInsertEnabled: false,
         });
 
@@ -294,13 +294,15 @@
     }
     $(document).ready(function() {
 
+
+
         new FroalaEditor('#message', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
             quickInsertEnabled: false,
         });
 
         new FroalaEditor('#submessage', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'align', 'insertLink'],
+            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
             quickInsertEnabled: false,
         });
     });
@@ -378,6 +380,7 @@
 
 
         $('.delete-btn').click(function(e) {
+
             e.preventDefault();
             let id = $(this).data('id');
             $('#loadingModal').modal('show');
