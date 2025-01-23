@@ -376,7 +376,7 @@
                         </div>
                         <div class="col col-stats ms-3 ms-sm-0">
                             <div class="numbers">
-                                <p class="card-category">Number of Vendors</p>
+                                <p class="card-category">Number of Seller</p>
                                 <h4 class="card-title">{{$total_vendor}}</h4>
                             </div>
                         </div>

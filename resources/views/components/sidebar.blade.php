@@ -39,7 +39,7 @@
                 <li class="nav-item {{ request()->routeIs('vendor') ? 'active' : '' }}">
                     <a class="nav-link" href="{{ route('vendor') }}">
                         <i class="fas fa-users"></i>
-                        <span class="menu-title">Vendor List</span>
+                        <span class="menu-title">Seller List</span>
                     </a>
                 </li>
                 <li class="nav-item {{ request()->routeIs('client') ? 'active' : '' }}">

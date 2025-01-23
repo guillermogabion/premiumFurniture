@@ -77,7 +77,7 @@
                                 <select class="form-control" id="role" name="role" required>
                                     <option value="" disabled selected>Create Account As</option>
                                     <option value="client">Customer/Client</option>
-                                    <option value="vendor">Vendor</option>
+                                    <option value="vendor">Seller</option>
                                 </select>
                             </div>
 

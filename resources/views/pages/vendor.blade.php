@@ -11,7 +11,7 @@
                         <div class="card-body">
                             <div class="row mb-3">
                                 <div class="col-lg-6 col-md-6">
-                                    <label for="" class="card-title">Vendors</label>
+                                    <label for="" class="card-title">Seller</label>
                                 </div>
                             </div>
                             <div class="card-body">
