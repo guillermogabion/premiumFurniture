@@ -126,7 +126,7 @@
                     </div>
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-dark">{{ $seller->name ?? 'Product Name' }}</h5>
-                        <p class="card-text text-muted small">{{ $seller->description ?? 'No description available.' }}</p>
+                        <p class="card-text text-muted small mb-2" id="description-{{ $seller->id }}">{{ $seller->description }}</p>
                         <p class="card-text text-success fw-bold">Price: ₱ {{ number_format($seller->price, 2) }}</p>
                         <div class="d-flex align-items-center mb-3">
                             <div class="text-warning me-2">
@@ -306,6 +306,7 @@
 </div>
 
 <script>
+    
     document.addEventListener('DOMContentLoaded', function() {
         const commentIcon = document.getElementById('commentIcon');
         const commentField = document.getElementById('commentField');

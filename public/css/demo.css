@@ -776,3 +776,55 @@ textarea.form-control:focus {
   max-height: 400px; 
   overflow-y: auto;
 }
+
+/* General styles for text container */
+.slide-message {
+  position: absolute; 
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  z-index: 10;
+  color: white; 
+  padding: 20px;
+  max-width: 90%;
+  text-align: center;
+  font-size: 1.5rem;
+  box-sizing: border-box;
+  display: flex; 
+  flex-direction: column;
+  justify-content: center;
+}
+
+
+@media (max-width: 1200px) {
+  .slide-message {
+      font-size: 1.4rem;
+      padding: 15px;
+  }
+}
+
+@media (max-width: 992px) {
+  .slide-message {
+      font-size: 1.2rem;
+      padding: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .slide-message {
+      font-size: 1rem;
+      padding: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .slide-message {
+      font-size: 0.9rem;
+      padding: 5px;
+  }
+}
+
+.modal-height {
+  max-height: 1000px;
+  overflow-y: auto; 
+}

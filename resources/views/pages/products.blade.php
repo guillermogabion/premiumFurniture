@@ -170,28 +170,30 @@
                 <form id="editForm">
                     @csrf
                     <div class="form-group text-center">
-                        <div class="row">
+                        <!-- <div class="row">
                             <div class="col-12">
                                 <label for="sampleEditImage">
                                     <div id="editItemImagesContainer" class="preview-container">
-                                        <!-- Images will be appended here dynamically -->
                                     </div>
                                 </label>
                             </div>
+                        </div> -->
+
+                        <div class="form-group">
+                            <div class="upload-area" onclick="document.getElementById('sampleEditImages').click()">
+                                <p class="upload-text"><span class="upload-link">Browse</span> to Upload Images</p>
+                                <input type="file" id="sampleEditImages" name="sampleEditImages[]" accept="image/*" multiple style="display: none;" onchange="previewEditImages(event)">
+                            </div>
+                            @error('sampleEditImages')
+                            <span class="invalid-feedback" role="alert">
+                                <strong>{{ $message }}</strong>
+                            </span>
+                            @enderror
                         </div>
-
-                        <input type="file" id="sampleEditImage" name="sampleImage" multiple accept="image/*" style="display: none;" onchange="previewEditImages(event)">
-                        @error('sampleEditImage')
-                        <span class="invalid-feedback" role="alert">
-                            <strong>{{ $message }}</strong>
-                        </span>
-                        @enderror
                     </div>
-
-
-
-
-
+                    <div id="editItemImagesPreview" class="preview-container">
+                        <!-- Images will be appended here dynamically -->
+                    </div>
 
                     <input type="hidden" id="itemId" name="id">
                     <div class="form-group">
@@ -223,6 +225,7 @@
         </div>
     </div>
 </div>
+
 
 <div id="loadingModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="loadModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
@@ -275,8 +278,6 @@
         });
 
         $('.edit-btn').click(function() {
-
-
             let id = $(this).data('id');
             let name = $(this).data('name');
             let category = $(this).data('category');
@@ -300,26 +301,38 @@
             $('#itemDescription').val(description);
 
             // Clear previous images
-            $('#editItemImagesContainer').empty();
+            $('#editItemImagesPreview').empty();
 
             // If there are images, display them
             if (Array.isArray(images)) {
                 console.log('true');
-                images.forEach(function(image) {
+                images.forEach(function(image, index) {
                     // Construct the image element for each image
-                    let imgElement = `<img src="{{ asset('product/') }}/${image}" alt="Product Image" style="width: 220px; height: 220px; border-radius: 20px; margin: 5px;">`;
-                    $('#editItemImagesContainer').append(imgElement);
+                    let imgElement = `
+                <div class="image-wrapper" style="display: inline-block; position: relative; margin: 5px;">
+                    <img src="{{ asset('product/') }}/${image}" alt="Product Image" style="width: 50px; height: 50px; border-radius: 20px; margin: 5px;">
+                  
+                </div>
+            `;
+                    $('#editItemImagesPreview').append(imgElement);
+
+                    $('#editItemImagesPreview .remove-img-btn').last().click(function(event) {
+                        event.stopPropagation();
+                        event.preventDefault(); // Prevents the label's default behavior
+                        // Remove the image wrapper
+                        $(this).closest('.image-wrapper').remove();
+                    });
                 });
             } else {
-                // If no images are available, use a default image
                 console.log('false');
                 let defaultImage = `<img src="{{ asset('img/kaiadmin/logos.png') }}" alt="Default Image" style="width: 220px; height: 220px; border-radius: 20px;">`;
-                $('#editItemImagesContainer').append(defaultImage);
+                $('#editItemImagesPreview').append(defaultImage);
             }
 
             // Show the modal
             $('#editModal').modal('show');
         });
+
 
 
 
@@ -415,7 +428,7 @@
                         text: 'Update Successful',
                         icon: 'success',
                         confirmButtonText: 'OK',
-                    })
+                    }).then(() => window.location.reload())
                 },
                 error: function(err) {
                     console.error(err);
@@ -424,7 +437,7 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Oops...',
-                        text: 'An error occurred. Please try again.',
+                        text: 'Order found for the given product. Not Editable this time',
                         confirmButtonText: 'OK',
                     });
                 },

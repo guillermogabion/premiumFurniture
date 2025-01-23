@@ -90,6 +90,7 @@ Route::middleware('auth')->group(function () {
     // cart 
 
     Route::post('/cart_add', [CartController::class, 'addCart'])->name('cart_add');
+    Route::post('/cart_remove', [CartController::class, 'removeCart'])->name('cart_remove');
 
 
     // order 

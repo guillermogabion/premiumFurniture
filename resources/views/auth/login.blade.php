@@ -90,7 +90,7 @@
                     </div>
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-dark text-truncate">{{ $item->name }}</h5>
-                        <p class="card-text text-muted small mb-2">{{ $item->description }}</p>
+                        <p class="card-text text-muted small mb-2" id="description-{{ $item->id }}">{{ $item->description }}</p>
                         <p class="card-text text-success fw-bold mb-3">Price: ₱{{ number_format($item->price, 2) }}</p>
                         <div class="d-flex align-items-center mb-3">
                             <div class="text-warning me-2">
@@ -111,6 +111,9 @@
                 <p class="text-center text-muted">No products found.</p>
             </div>
             @endforelse
+        </div>
+        <div class="pagination d-flex justify-content-center mt-4">
+            {{ $items->links('pagination::bootstrap-4') }}
         </div>
     </div>
 </section>
@@ -368,4 +371,13 @@
 
 
     })
+
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.card-text').forEach(function(element) {
+            var text = element.innerText;
+            if (text.length > 30) {
+                element.innerText = text.substring(0, 30) + '...';
+            }
+        });
+    });
 </script>

@@ -55,11 +55,11 @@
                                                         {{ $item->status == 'active' ? 'Confirmed' : 'Pending' }}
                                                     </button>
                                                 </td>
-                                                <td>
+                                                <!-- <td>
                                                     <button type="button" class="btn btn-rounded btn-icon edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-id="{{ $item->id }}" data-userid="{{ $item->userId }}" data-name="{{$item->name}}" data-email="{{ $item->email }}" data-role="{{ $item->role }}">
                                                         <i class="fa fa-edit text-primary"></i>
                                                     </button>
-                                                </td>
+                                                </td> -->
                                             </tr>
                                             @empty
                                             <tr>

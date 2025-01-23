@@ -70,7 +70,7 @@ class LoginController extends Controller
                 'products.status'
             )
             ->orderBy('products.created_at', 'desc')
-            ->get();
+            ->paginate(10);
 
         foreach ($items as $item) {
             $item->images = json_decode($item->images, true);

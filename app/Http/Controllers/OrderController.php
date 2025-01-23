@@ -23,6 +23,7 @@ class OrderController extends Controller
             'Address',
             'Contact',
             'Quantity',
+            'Referrence Number',
             'Date',
             'Status',
         ];

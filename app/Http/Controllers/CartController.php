@@ -39,7 +39,7 @@ class CartController extends Controller
         $recentCartEntry = Cart::where('user_id', auth()->user()->id)
             ->where('product_id', $request->input('product_id'))
             ->where('created_at', '>=', now()->subSeconds(5))
-            
+
             ->first();
 
         if ($recentCartEntry) {
@@ -53,5 +53,13 @@ class CartController extends Controller
         $cart->save();
 
         return redirect()->route('home')->with('success', 'Add Cart successful.');
+    }
+
+    public function removeCart(Request $request)
+    {
+        $item = Cart::findorfail($request->id);
+        $item->delete();
+
+        return redirect()->route('home')->with('success', 'Item in Cart removed.');
     }
 }

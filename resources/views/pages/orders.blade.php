@@ -19,7 +19,7 @@
                                 <div class="col-lg-6 col-md-6">
                                     <form method="GET" action="{{ route('vendor') }}">
                                         <div class="input-group">
-                                            <input type="text" name="search" class="form-control" placeholder="Search users..." value="{{ request()->query('search') }}">
+                                            <input type="text" name="search" class="form-control" placeholder="Search Order Id" value="{{ request()->query('search') }}">
                                             <span class="input-group-append">
                                                 <button class="btn btn-outline-secondary d-none" type="submit">Search</button>
                                             </span>
@@ -59,6 +59,8 @@
                                                     @endif
                                                     @endforeach
                                                 </td>
+                                                <td>{{ $item->ref_no ?? '' }}</td>
+
                                                 <td>{{ \Carbon\Carbon::parse($item->date)->format('F j, Y') }}</td>
                                                 <td>
                                                     <div class="dropdown">

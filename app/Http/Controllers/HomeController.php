@@ -58,7 +58,7 @@ class HomeController extends Controller
             )
             ->with('ratings.user', 'user.gcash')
             ->orderBy('products.created_at', 'desc')
-            ->get();
+            ->paginate(10);
         foreach ($items as $item) {
             $item->images = json_decode($item->images, true);
         }
@@ -90,8 +90,30 @@ class HomeController extends Controller
             }
         });
         $total_vendor = User::where('role', 'vendor')->count();
-        $total_products = Product::where('status', 'active')->count();
-        $total_order = Order::count();
+        if (auth()->user()->role !== 'admin') {
+            $total_products = Product::where('status', 'active')->count();
+            $total_order = Order::count();
+        } else {
+            $total_products = Product::where('user_id', auth()->user()->id)->where('status', 'active')->count();
+            // $total_order = Order::where('user_id', auth()->user()->id)->count();
+
+            $items = Order::get();
+
+            // Initialize a counter for the total orders
+            $total_order = 0;
+
+            $items->each(function ($order) use (&$total_order) {
+                $productIds = json_decode($order->product_ids, true);
+
+                if (is_array($productIds) && count($productIds) > 0) {
+                    foreach ($productIds as $product) {
+                        if (isset($product['quantity'])) {
+                            $total_order += $product['quantity'];
+                        }
+                    }
+                }
+            });
+        }
 
         $my_total_products = Product::where('status', 'active')->where('user_id', auth()->user()->id)->count();
 

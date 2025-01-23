@@ -231,14 +231,14 @@
                                     </span>
                                 </div>
                             </div>
-
                         </form>
                     </div>
                 </div>
+
+                <!-- Display products -->
                 @forelse ($items as $item)
                 <div class="col-md-4 col-lg-3">
                     <div class="card shadow-sm border-0 h-100">
-
                         <div class="position-relative overflow-hidden">
                             <img
                                 src="{{ asset('product/' . ($item->images[0] ?? 'img/kaiadmin/logos.png')) }}"
@@ -256,8 +256,8 @@
                                 data-ratings="{{ json_encode($item->ratings) }}"
                                 data-average-rating="{{ $item->average_rating }}"
                                 data-ratings-count="{{ $item->ratings_count }}"
-                                data-item-id="{{ $item->user->id}}"
-                                data-item-profile="{{ $item->user->profile}}"
+                                data-item-id="{{ $item->user->id }}"
+                                data-item-profile="{{ $item->user->profile }}"
                                 data-qr="{{$item->user->gcash->gcash_qr_code ?? ''}}"
                                 data-item-seller="{{$item->user->id}}">
                         </div>
@@ -268,9 +268,9 @@
                             style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; cursor: pointer;"
                             onclick="window.location='{{route('seller', ['id' => $item->user->id])}}'"
                             class="m-2">
-                        <div class="card-body d-flex flex-column >
-                            <h5 class=" card-title">{{ $item->name }}</h5>
-                            <p class="text-muted small">{{ $item->description }}</p>
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title">{{ $item->name }}</h5>
+                            <p class="card-texts text-muted small mb-2" id="description-{{ $item->id }}">{{ $item->description }}</p>
                             <p class="text-success fw-bold">₱{{ number_format($item->price, 2) }}</p>
                             <div class="d-flex align-items-center">
                                 <div class="text-warning me-2">
@@ -293,15 +293,21 @@
                 </div>
                 @endforelse
             </div>
+
+            <!-- Pagination controls -->
+            <div class="pagination d-flex justify-content-centemt-4">
+                {{ $items->links('pagination::bootstrap-4') }}
+            </div>
         </div>
     </section>
 
 
 
 
+
     <!-- About Us Section -->
     <section id="about" class="py-5 bg-light">
-        <div class="container">
+        <div cr lass="container">
             <h2 class="text-center mb-4">About Us</h2>
             <p class="lead text-center">
                 We are a company dedicated to providing high-quality products and excellent customer service.
@@ -609,7 +615,7 @@
             <div class="modal-header bg-primary text-white border-0 rounded-top">
                 <h5 class="modal-title fw-bold" id="editModalLabel">My Cart</h5>
             </div>
-            <div class="modal-body px-5 py-4">
+            <div class="modal-body modal-height px-5 py-4">
                 <div class="row g-4 justify-content-center">
                     @php
                     // Store the first item's shop name to compare with the others
@@ -631,12 +637,22 @@
                                 $images = json_decode($item->product->images);
                                 $firstImage = $images[0] ?? null; // Get the first image or null if the array is empty
                                 @endphp
-                                <img
-                                    src="{{ asset('product/' . ($firstImage ?? 'img/kaiadmin/logos.png')) }}"
-                                    class="card-img-top img-fluid"
-                                    alt="{{ $item->product->name }}"
-                                    loading="lazy"
-                                    style="height: 200px; object-fit: cover;">
+                                <div style="position: relative; display: inline-block;">
+                                    <img
+                                        src="{{ asset('product/' . ($firstImage ?? 'img/kaiadmin/logos.png')) }}"
+                                        class="card-img-top img-fluid"
+                                        alt="{{ $item->product->name }}"
+                                        loading="lazy"
+                                        style="height: 200px; object-fit: cover;">
+
+                                    <span
+                                        style="position: absolute; top: 10px; right: 10px; cursor: pointer;"
+                                        class="cart-delete-btn btn btn-danger"
+                                        data-id="{{ $item->id }}">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                </div>
+
                             </div>
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title text-dark text-truncate mb-2">{{ $item->product->name }}</h5>
@@ -841,12 +857,10 @@
                                         <p class="card-text text-success fw-bold mb-1">Total: ₱ {{ number_format($item->total, 2) }}</p>
                                         <p class="card-text text-secondary mb-1">Downpayment: ₱ {{ number_format($item->downpayment_amount, 2) }}</p>
                                         <h6 class="mt-3">Products:</h6>
-                                        @foreach ($item->products as $product)
+                                        @forelse ($item->products as $product)
                                         @php
-                                        // Decode the product_ids to get the quantity for each product
                                         $productIds = json_decode($item->product_ids, true);
 
-                                        // Find the quantity for the current product
                                         $productQuantity = 0;
                                         foreach ($productIds as $productId) {
                                         if ($productId['product_id'] == $product->id) {
@@ -865,7 +879,9 @@
                                             <p class="text-dark">{{ $product->name }} (₱ {{ number_format($product->price, 2) }})</p>
                                             <span class="text-secondary">x{{ $productQuantity }}</span>
                                         </div>
-                                        @endforeach
+                                        @empty
+                                        <p class="text-muted">No products available for this item.</p>
+                                        @endforelse
 
                                         <h6 class="mt-3">User Details:</h6>
                                         <p class="card-text text-muted small mb-1">Name: {{ $item->user->fullname }}</p>
@@ -875,12 +891,13 @@
 
                                         @if ($item->status == 'received')
                                         <div class="d-flex justify-content-between align-items-center mt-4">
-                                            <button class="btn btn-success btn-sm button-rate"
-                                                data-productitemid="{{ $product->id }}">
+                                            <button class="btn btn-success btn-sm button-rate" data-productitemid="{{ $product->id }}">
                                                 Rate
                                             </button>
                                         </div>
                                         @endif
+
+
                                     </div>
                                 </div>
                             </div>
@@ -1094,6 +1111,15 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        document.querySelectorAll('.card-texts').forEach(function(element) {
+            var text = element.innerText;
+            if (text.length > 30) {
+                element.innerText = text.substring(0, 30) + '...';
+            }
+        });
+    });
+
     document.addEventListener("DOMContentLoaded", function() {
         const slides = document.querySelectorAll(".slide");
         let currentIndex = 0;
@@ -1488,6 +1514,55 @@
                 Swal.fire({
                     title: 'Success!',
                     text: 'Saving Success',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            }).fail(function(err) {
+                if (err.status === 422) {
+                    let errors = err.responseJSON.errors;
+                    for (let key in errors) {
+                        if (errors.hasOwnProperty(key)) {
+                            console.error(key + ": " + errors[key]);
+                        }
+                    }
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error",
+                        text: errors.name[0],
+                        confirmButtonText: 'OK'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.reload();
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: err.responseJSON.message || "An error occurred",
+                        confirmButtonText: 'OK'
+                    });
+                    console.error(err);
+                }
+            })
+        })
+        $('.cart-delete-btn').click(function(e) {
+            e.preventDefault();
+
+            let id = $(this).data('id');
+            let product_id = document.getElementById('itemId').value
+            let quantity = document.getElementById('itemQuantity').value
+            $.post('/cart_remove', {
+                _token: $('meta[name="csrf-token"]').attr('content'),
+                id: id,
+
+            }).done(function(res) {
+                Swal.fire({
+                    title: 'Removed!',
                     icon: 'success',
                     confirmButtonText: 'OK'
                 }).then((result) => {

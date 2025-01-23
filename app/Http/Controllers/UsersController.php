@@ -78,7 +78,7 @@ class UsersController extends Controller
             'Contact',
             'Email',
             'Status',
-            'Action'
+            // 'Action'
         ];
         $items = User::when($search, function ($query, $search) {
             return $query->where('fullname', 'like', '%' . $search . '%')
