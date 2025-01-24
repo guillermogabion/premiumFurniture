@@ -39,6 +39,7 @@
                                         </thead>
                                         <tbody>
                                             @forelse ($items as $item)
+
                                             <tr>
                                                 <td>{{ $item->orderId }}</td>
                                                 <td>{{$item->products->pluck('name')->implode(', ') }}
@@ -60,6 +61,11 @@
                                                     @endforeach
                                                 </td>
                                                 <td>{{ $item->ref_no ?? '' }}</td>
+                                                <td>
+                                                    <a href="{{ asset('orderImage/' . $item->image) }}" data-lightbox="edit-image-groups" data-title="Image Preview">
+                                                        <img src="{{ $item->image ? asset('orderImage/' . $item->image) : '' }}" alt="Image Preview" style="display: block; width: 50px; height: 50px; object-fit: cover; border: 1px solid #ddd; padding: 5px; cursor: pointer;">
+                                                    </a>
+                                                </td>
 
                                                 <td>{{ \Carbon\Carbon::parse($item->date)->format('F j, Y') }}</td>
                                                 <td>
@@ -205,7 +211,9 @@
         </div>
     </div>
 </div>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css" rel="stylesheet">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 <script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <script>

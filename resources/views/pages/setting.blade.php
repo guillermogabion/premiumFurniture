@@ -102,7 +102,18 @@
                     </div>
                     <div class="form-group">
                         <label for="message">Message:</label>
-                        <textarea id="message" name="message" class="form-control" required></textarea>
+                        <div class="editor-container">
+                            <!-- Toolbar with formatting options -->
+                            <div class="toolbar">
+                                <button class="bold-btn" onclick="execCmd('bold')">B</button>
+                                <button class="italic-btn" onclick="execCmd('italic')">I</button>
+                                <button class="underline-btn" onclick="execCmd('underline')">U</button>
+                                <button class="link-btn" onclick="execCmd('createLink', prompt('Enter the link URL:'))">Link</button>
+                            </div>
+
+                            <!-- Editable content area -->
+                            <div id="message" class="editor" contenteditable="true"></div>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -213,13 +224,56 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/js/froala_editor.pkgd.min.js"></script>
-
-<script src="{{ asset('js/jquery.cookie.js') }}"></script>
 <link href="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/css/froala_editor.pkgd.min.css" rel="stylesheet">
+
+<!-- Include Quill's JavaScript -->
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/froala-editor@4.0.10/js/froala_editor.pkgd.min.js"></script>
+<script src="{{ asset('js/jquery.cookie.js') }}"></script>
 
 <script>
     $(document).ready(function() {
+
+        var quillMessage = new Quill('#message', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    ['link']
+                ]
+            }
+        });
+
+        var quillSubMessage = new Quill('#submessage', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    ['link']
+                ]
+            }
+        });
+
+        // Initialize Quill editor for the edit modal
+        var quillEditMessage = new Quill('#editMessage', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    ['link']
+                ]
+            }
+        });
+
+        var quillEditSubMessage = new Quill('#editSubMessage', {
+            theme: 'snow',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    ['link']
+                ]
+            }
+        });
         $('#addType').change(function() {
             const type = $(this).val();
 
@@ -248,18 +302,9 @@
 
         $('#editId').val(id);
         $('#editType').val(type);
-        const itemMessageEditor = new FroalaEditor('#editMessage', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
-            quickInsertEnabled: false,
-        });
+        quillEditMessage.root.innerHTML = message; // Set content in the editor
+        quillEditSubMessage.root.innerHTML = submessage;
 
-        const itemSubMessageEditor = new FroalaEditor('#editSubMessage', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
-            quickInsertEnabled: false,
-        });
-
-        itemMessageEditor.html.set(message);
-        itemSubMessageEditor.html.set(submessage);
 
 
         if (images) {
@@ -292,20 +337,7 @@
         };
         reader.readAsDataURL(event.target.files[0]);
     }
-    $(document).ready(function() {
 
-
-
-        new FroalaEditor('#message', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
-            quickInsertEnabled: false,
-        });
-
-        new FroalaEditor('#submessage', {
-            toolbarButtons: ['bold', 'italic', 'underline', 'fontSize', 'fontFamily', 'insertLink'],
-            quickInsertEnabled: false,
-        });
-    });
 
     function validatePasswords(event) {
         const password = document.getElementById('passwordInputReset').value;

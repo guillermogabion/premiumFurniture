@@ -273,7 +273,7 @@
 
                 <!-- Submit Button -->
                 <div class="mb-3">
-                    <button type="submit" class="btn btn-primary edit-submit-btn">Submit</button>
+                    <button type="submit" class="btn btn-primary edits-submit-btn">Submit</button>
                 </div>
             </form>
         </div>
@@ -466,7 +466,7 @@
         }
     }
 
-    $('.edit-submit-btn').click(function(e) {
+    $('.edits-submit-btn').click(function(e) {
         e.preventDefault();
 
         // Get form values

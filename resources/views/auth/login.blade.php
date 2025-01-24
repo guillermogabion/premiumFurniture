@@ -199,7 +199,8 @@
                 <div class="text-center mt-3">
                     <small>
                         Don't have an account? <a href="{{ route('register') }}">Create</a><br>
-                        Forgot password? <a href="{{ route('reset') }}">Reset my Password</a>
+                        Forgot password? <a href="{{ route('password.request') }}">Reset my Password</a>
+                        <!-- Forgot password? <a href="{{ route('reset') }}">Reset my Password</a> -->
                     </small>
                 </div>
             </div>

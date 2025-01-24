@@ -24,6 +24,7 @@ class OrderController extends Controller
             'Contact',
             'Quantity',
             'Referrence Number',
+            'Referrence Image',
             'Date',
             'Status',
         ];
@@ -92,6 +93,13 @@ class OrderController extends Controller
                 return response()->json(['success' => false, 'message' => 'Missing required fields: product_id, quantity, or total.']);
             }
         }
+        if ($request->hasFile('image')) {
+            $imageName = time() . '.' . $request->image->extension();
+            $request->image->move(public_path('orderImage'), $imageName);
+        } else {
+            $imageName = null;
+        }
+
 
         $order = Order::create([
 
@@ -103,7 +111,7 @@ class OrderController extends Controller
             'status' => 'to_pay',
             'ref_no' => $request->input('ref_no'),
             'payment_mode' => $paymentMode,
-            'image' => $request->hasFile('image') ? $request->file('image')->store('orders', 'public') : null,
+            'image' => $imageName,
             'orderId' => $request->input('order_id'),
             'product_ids' => json_encode($orders),
         ]);

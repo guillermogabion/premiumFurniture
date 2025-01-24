@@ -828,3 +828,38 @@ textarea.form-control:focus {
   max-height: 1000px;
   overflow-y: auto; 
 }
+
+
+
+.editor-container {
+  width: 60%;
+  max-width: 800px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 10px;
+}
+
+
+.editor {
+  min-height: 300px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+a[id="fr-logo"] {
+  display: none !important;
+}
+p[data-f-id="pbf"] {
+  display: none !important;
+}
+a[href*="www.froala.com"] {
+  display: none !important;
+}

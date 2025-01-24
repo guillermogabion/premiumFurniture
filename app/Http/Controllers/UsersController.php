@@ -30,7 +30,7 @@ class UsersController extends Controller
                 ->orWhere('contact', 'like', '%' . $search . '%')
                 ->orWhere('email', 'like', '%' . $search . '%');
         })
-            // ->where('role', 'student')
+            ->where('role', '!=', 'admin')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
@@ -118,7 +118,17 @@ class UsersController extends Controller
 
     public function registers(Request $request)
     {
-
+        // Validate the incoming request
+        $validated = $request->validate([
+            'fullname' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email', // Ensures email is unique
+            'contact' => 'required|numeric',
+            'address' => 'required|string',
+            'gender' => 'required|string',
+            'role' => 'required|string',
+            'password' => 'required|string|confirmed|min:8', // Password confirmation validation
+            'profilePicture' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Optional profile picture validation
+        ]);
 
         // Create a new user instance
         $user = new User();

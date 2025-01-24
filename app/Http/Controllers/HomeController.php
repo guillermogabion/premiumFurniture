@@ -67,7 +67,7 @@ class HomeController extends Controller
         $inbox = Room::with('messages')->where('user_id', auth()->user()->id)->get();
         $cart = Cart::with(['product.user.gcash'])->where('user_id', auth()->user()->id)->get();
         $category = Category::all(); // Get categories for the dropdown
-        $total_user = User::count();
+        $total_user = User::where('role', '!=', 'admin')->count();
 
         $orders = Order::with('user')
             ->where('user_id', auth()->user()->id)
@@ -90,21 +90,22 @@ class HomeController extends Controller
             }
         });
         $total_vendor = User::where('role', 'vendor')->count();
-        if (auth()->user()->role !== 'admin') {
+        if (auth()->user()->role == 'admin') {
             $total_products = Product::where('status', 'active')->count();
             $total_order = Order::count();
         } else {
             $total_products = Product::where('user_id', auth()->user()->id)->where('status', 'active')->count();
             // $total_order = Order::where('user_id', auth()->user()->id)->count();
 
-            $items = Order::get();
+            $itemsMetric = Order::get();
 
             // Initialize a counter for the total orders
             $total_order = 0;
 
-            $items->each(function ($order) use (&$total_order) {
+            $itemsMetric->each(function ($order) use (&$total_order) {
                 $productIds = json_decode($order->product_ids, true);
 
+                // Check if product_ids is a valid array and contains data
                 if (is_array($productIds) && count($productIds) > 0) {
                     foreach ($productIds as $product) {
                         if (isset($product['quantity'])) {
